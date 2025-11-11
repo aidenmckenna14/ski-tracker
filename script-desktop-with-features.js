@@ -804,7 +804,12 @@ async function checkWeatherAlerts() {
     console.log('✅ Starting weather API calls...');
     
     const today = new Date().toDateString();
-    const cachedData = JSON.parse(localStorage.getItem('weatherCache')) || {};
+    
+    // Clear any old cached data to avoid format issues
+    localStorage.removeItem('weatherCache');
+    console.log('Cleared old weather cache');
+    
+    const cachedData = {};
     
     // Check if we have recent data (within 6 hours)
     if (cachedData.date === today && cachedData.timestamp && 
@@ -987,11 +992,26 @@ function displayWeatherAlerts(data = {}) {
     
     const forecastHtml = forecasts.length > 0 ? forecasts.map(forecast => {
         console.log('Processing forecast for display:', forecast);
+        
+        let dateString = '';
+        try {
+            if (typeof forecast.date === 'string') {
+                dateString = forecast.date;
+            } else if (forecast.date instanceof Date) {
+                dateString = forecast.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+            } else {
+                dateString = new Date(forecast.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+            }
+        } catch (error) {
+            console.error('Date formatting error for forecast:', forecast, error);
+            dateString = 'Date Error';
+        }
+        
         return `
         <div class="forecast-card">
             <div class="forecast-header">
                 <h4>${forecast.resort}</h4>
-                <span>${typeof forecast.date === 'string' ? forecast.date : new Date(forecast.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
+                <span>${dateString}</span>
             </div>
             <div class="forecast-details">
                 <div class="forecast-item">
