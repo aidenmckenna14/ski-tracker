@@ -21,6 +21,13 @@ const userSelect = document.getElementById('user-select');
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
+    // Ensure all users have arrays
+    ['aiden', 'jack', 'matt', 'mike', 'reece'].forEach(user => {
+        if (!allSkiDays[user]) {
+            allSkiDays[user] = [];
+        }
+    });
+    
     currentUser = userSelect.value;
     displaySkiDays();
     updateStats();

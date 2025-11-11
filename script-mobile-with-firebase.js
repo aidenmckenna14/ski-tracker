@@ -52,6 +52,13 @@ window.compareSkiers = compareSkiers;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
+    // Ensure all users have arrays
+    ['aiden', 'jack', 'matt', 'mike', 'reece'].forEach(user => {
+        if (!allSkiDays[user]) {
+            allSkiDays[user] = [];
+        }
+    });
+    
     currentUser = userSelect.value;
     displaySkiDays();
     updateStats();
@@ -93,6 +100,13 @@ function saveToFirebase() {
     if (typeof firebase === 'undefined') return;
     
     try {
+        // Ensure all users exist before saving
+        ['aiden', 'jack', 'matt', 'mike', 'reece'].forEach(user => {
+            if (!allSkiDays[user]) {
+                allSkiDays[user] = [];
+            }
+        });
+        
         firebase.database().ref('skiDays').set(allSkiDays);
     } catch (error) {
         console.error('Firebase save error:', error);
