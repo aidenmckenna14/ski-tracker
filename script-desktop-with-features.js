@@ -876,19 +876,29 @@ async function checkWeatherAlerts() {
                 
                 // Weekend forecast
                 const weekend = getNextWeekend();
+                console.log(`Looking for weekend forecast for ${resort.name}, target date:`, weekend);
+                
                 const weekendData = data.list.find(period => {
                     const periodDate = new Date(period.dt * 1000);
-                    return periodDate.getDate() === weekend.getDate();
+                    const matches = periodDate.getDate() === weekend.getDate();
+                    if (matches) {
+                        console.log(`Found weekend data for ${resort.name}:`, periodDate, weekendData.weather[0].description);
+                    }
+                    return matches;
                 });
                 
                 if (weekendData) {
-                    forecasts.push({
+                    const forecastItem = {
                         resort: resort.name,
-                        date: weekend,
+                        date: weekend.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }),
                         temp: weekendData.main.temp,
                         conditions: weekendData.weather[0].description,
                         snow: weekendData.snow ? (weekendData.snow['3h'] / 25.4).toFixed(1) : 0
-                    });
+                    };
+                    forecasts.push(forecastItem);
+                    console.log(`Added forecast for ${resort.name}:`, forecastItem);
+                } else {
+                    console.log(`No weekend data found for ${resort.name}`);
                 }
             }
         } catch (error) {
@@ -972,7 +982,12 @@ function displayWeatherAlerts(data = {}) {
     document.getElementById('alerts-list').innerHTML = alertsHtml;
     
     // Display weekend forecasts
-    const forecastHtml = forecasts.length > 0 ? forecasts.map(forecast => `
+    console.log('Displaying forecasts. Count:', forecasts.length);
+    console.log('Forecast data:', forecasts);
+    
+    const forecastHtml = forecasts.length > 0 ? forecasts.map(forecast => {
+        console.log('Processing forecast for display:', forecast);
+        return `
         <div class="forecast-card">
             <div class="forecast-header">
                 <h4>${forecast.resort}</h4>
@@ -991,9 +1006,20 @@ function displayWeatherAlerts(data = {}) {
                 </div>` : ''}
             </div>
         </div>
-    `).join('') : '<p>No weekend forecast available.</p>';
+        `;
+    }).join('') : '<p>No weekend forecast available.</p>';
     
-    document.getElementById('weekend-forecast').innerHTML = forecastHtml;
+    console.log('Generated forecast HTML:', forecastHtml);
+    
+    const weekendElement = document.getElementById('weekend-forecast');
+    console.log('Weekend forecast element:', weekendElement);
+    
+    if (weekendElement) {
+        weekendElement.innerHTML = forecastHtml;
+        console.log('✅ Weekend forecast HTML updated');
+    } else {
+        console.error('❌ weekend-forecast element not found!');
+    }
 }
 
 function getNextWeekend() {
