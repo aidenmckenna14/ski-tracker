@@ -114,7 +114,7 @@ function setupFirebaseSync() {
                     document.getElementById('snow-threshold').value = weatherSettings.snowThreshold || 6;
                     
                     // Update resort checkboxes
-                    document.querySelectorAll('.resort-checkbox').forEach(cb => {
+                    document.querySelectorAll('#resort-checkboxes input[type="checkbox"]').forEach(cb => {
                         cb.checked = weatherSettings.monitoredResorts && 
                                    weatherSettings.monitoredResorts.includes(cb.value);
                     });
@@ -811,7 +811,7 @@ window.saveWeatherSettings = function() {
         
         // Get monitored resorts
         weatherSettings.monitoredResorts = [];
-        document.querySelectorAll('.resort-checkbox:checked').forEach(cb => {
+        document.querySelectorAll('#resort-checkboxes input[type="checkbox"]:checked').forEach(cb => {
             weatherSettings.monitoredResorts.push(cb.value);
         });
         
@@ -844,8 +844,8 @@ function loadWeatherTab() {
     // Create resort checkboxes
     const checkboxContainer = document.getElementById('resort-checkboxes');
     checkboxContainer.innerHTML = newEnglandResorts.map(resort => `
-        <label>
-            <input type="checkbox" class="resort-checkbox" value="${resort.name}" 
+        <label class="resort-checkbox">
+            <input type="checkbox" value="${resort.name}" 
                 ${weatherSettings.monitoredResorts.includes(resort.name) ? 'checked' : ''}>
             ${resort.name}
         </label>
