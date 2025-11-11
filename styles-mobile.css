@@ -132,6 +132,16 @@ input, select, textarea {
     -webkit-appearance: none;
 }
 
+/* Override for checkboxes */
+input[type="checkbox"] {
+    width: auto;
+    height: auto;
+    padding: 0;
+    border: none;
+    background: transparent;
+    -webkit-appearance: auto;
+}
+
 input:focus, select:focus, textarea:focus {
     outline: none;
     border-color: var(--forest-green);
@@ -684,6 +694,10 @@ input:focus, select:focus, textarea:focus {
     height: 18px;
     margin: 0;
     accent-color: var(--forest-green);
+    pointer-events: auto;
+    cursor: pointer;
+    z-index: 10;
+    position: relative;
 }
 
 .alert-settings {
