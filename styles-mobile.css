@@ -674,6 +674,9 @@ input:focus, select:focus, textarea:focus {
     border-radius: 8px;
     border: 1px solid var(--sage-green);
     margin: 0;
+    cursor: pointer;
+    font-weight: normal;
+    color: var(--pine-green);
 }
 
 .resort-checkbox input[type="checkbox"] {

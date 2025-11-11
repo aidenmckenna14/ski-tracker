@@ -51,7 +51,8 @@ window.showTab = function(tab) {
     } else if (tab === 'pass') {
         updatePassROI();
     } else if (tab === 'weather') {
-        loadWeatherTab();
+        // Add small delay to ensure DOM elements are ready
+        setTimeout(loadWeatherTab, 100);
     }
 }
 
@@ -60,6 +61,7 @@ window.editSkiDay = editSkiDay;
 window.deleteSkiDay = deleteSkiDay;
 window.updateStatsView = updateStatsView;
 window.compareSkiers = compareSkiers;
+window.loadWeatherTab = loadWeatherTab;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -834,28 +836,52 @@ window.saveWeatherSettings = function() {
 }
 
 function loadWeatherTab() {
+    console.log('Loading weather tab...');
+    
     // Load saved settings
-    if (weatherSettings.apiKey && document.getElementById('weather-api-key')) {
-        document.getElementById('weather-api-key').value = weatherSettings.apiKey;
+    const apiKeyEl = document.getElementById('weather-api-key');
+    const enableAlertsEl = document.getElementById('enable-alerts');
+    const snowThresholdEl = document.getElementById('snow-threshold');
+    const checkboxContainer = document.getElementById('resort-checkboxes');
+    
+    if (apiKeyEl && weatherSettings.apiKey) {
+        apiKeyEl.value = weatherSettings.apiKey;
     }
-    document.getElementById('enable-alerts').checked = weatherSettings.enableAlerts;
-    document.getElementById('snow-threshold').value = weatherSettings.snowThreshold;
+    
+    if (enableAlertsEl) {
+        enableAlertsEl.checked = weatherSettings.enableAlerts;
+        console.log('Set enable alerts to:', weatherSettings.enableAlerts);
+    } else {
+        console.error('Enable alerts element not found');
+    }
+    
+    if (snowThresholdEl) {
+        snowThresholdEl.value = weatherSettings.snowThreshold;
+    }
     
     // Create resort checkboxes
-    const checkboxContainer = document.getElementById('resort-checkboxes');
-    checkboxContainer.innerHTML = newEnglandResorts.map(resort => `
-        <label class="resort-checkbox">
-            <input type="checkbox" value="${resort.name}" 
-                ${weatherSettings.monitoredResorts.includes(resort.name) ? 'checked' : ''}>
-            ${resort.name}
-        </label>
-    `).join('');
+    if (checkboxContainer) {
+        console.log('Creating checkboxes for', newEnglandResorts.length, 'resorts');
+        checkboxContainer.innerHTML = newEnglandResorts.map(resort => `
+            <label class="resort-checkbox">
+                <input type="checkbox" value="${resort.name}" 
+                    ${weatherSettings.monitoredResorts.includes(resort.name) ? 'checked' : ''}>
+                ${resort.name}
+            </label>
+        `).join('');
+        console.log('Checkboxes created');
+    } else {
+        console.error('Checkbox container not found');
+    }
     
     // Check for alerts if API key exists
     if (weatherSettings.apiKey) {
         checkWeatherAlerts();
     } else {
-        document.getElementById('alerts-list').innerHTML = '<p>Enter your API key to see weather alerts</p>';
+        const alertsList = document.getElementById('alerts-list');
+        if (alertsList) {
+            alertsList.innerHTML = '<p>Enter your API key to see weather alerts</p>';
+        }
     }
 }
 
