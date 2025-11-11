@@ -808,11 +808,21 @@ async function checkWeatherAlerts() {
     
     console.log('Cached data:', cachedData);
     
-    // Check if we have recent data (within 6 hours)
-    if (cachedData.date === today && cachedData.timestamp && 
+    // Temporarily disable cache for debugging - force fresh API calls
+    console.log('DEBUGGING: Forcing fresh API calls (cache temporarily disabled)');
+    
+    // Check if we have recent data (within 6 hours) - DISABLED FOR DEBUGGING
+    if (false && cachedData.date === today && cachedData.timestamp && 
         Date.now() - cachedData.timestamp < 6 * 60 * 60 * 1000) {
+        console.log('Using cached data from', new Date(cachedData.timestamp));
+        console.log('Cached alerts:', cachedData.data?.alerts?.length || 0);
+        console.log('Cached forecasts:', cachedData.data?.forecasts?.length || 0);
         displayWeatherAlerts(cachedData.data);
         return;
+    } else {
+        console.log('Making fresh API calls...');
+        console.log('Cache date:', cachedData.date, 'vs today:', today);
+        console.log('Cache age:', cachedData.timestamp ? Date.now() - cachedData.timestamp : 'No timestamp');
     }
     
     // Check API call count
