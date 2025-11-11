@@ -203,11 +203,15 @@
         </div>
     </div>
 
-    <!-- Firebase -->
+    <!-- For now, using the simple version without Firebase -->
+    <script src="script-mobile-simple.js"></script>
+    
+    <!-- To enable Firebase sync later, uncomment these lines and comment out script-mobile-simple.js above:
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
     <script src="firebase-config.js"></script>
     <script src="script-mobile-firebase.js"></script>
+    -->
     <script>
         // Register service worker for PWA
         if ('serviceWorker' in navigator) {

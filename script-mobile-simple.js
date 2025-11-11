@@ -1,29 +1,12 @@
-// Firebase-enabled version with real-time sync
+// Simple version without Firebase to test if the app works
 let currentUser = 'aiden';
-let allSkiDays = {
+let allSkiDays = JSON.parse(localStorage.getItem('allSkiDays')) || {
     aiden: [],
     jack: [],
     matt: [],
     mike: [],
     reece: []
 };
-
-// Check if Firebase is available
-let useFirebase = false;
-let database = null;
-
-try {
-    if (typeof firebase !== 'undefined' && firebase.database) {
-        database = firebase.database();
-        useFirebase = true;
-        console.log('Firebase initialized successfully');
-    } else {
-        console.log('Firebase not available, using localStorage');
-    }
-} catch (error) {
-    console.error('Firebase initialization error:', error);
-    useFirebase = false;
-}
 
 function getCurrentUserDays() {
     return allSkiDays[currentUser] || [];
@@ -40,7 +23,7 @@ const closeBtn = document.getElementsByClassName('close')[0];
 const editForm = document.getElementById('edit-form');
 
 // Tab switching
-function showTab(tab) {
+window.showTab = function(tab) {
     document.querySelectorAll('.tab-button').forEach(btn => {
         btn.classList.remove('active');
     });
@@ -61,79 +44,18 @@ function showTab(tab) {
     }
 }
 
+// Make functions global so onclick works
+window.editSkiDay = editSkiDay;
+window.deleteSkiDay = deleteSkiDay;
+window.updateStatsView = updateStatsView;
+window.compareSkiers = compareSkiers;
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     currentUser = userSelect.value;
-    
-    if (useFirebase && database) {
-        try {
-            // Listen for Firebase changes
-            database.ref('skiDays').on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    allSkiDays = data;
-                    displaySkiDays();
-                    updateStats();
-                }
-            }, (error) => {
-                console.error('Firebase read error:', error);
-                loadFromLocalStorage();
-            });
-            
-            // Load initial data from Firebase
-            database.ref('skiDays').once('value').then((snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    allSkiDays = data;
-                } else {
-                    // If no data in Firebase, save current local data
-                    saveToFirebase();
-                }
-                displaySkiDays();
-                updateStats();
-            }).catch((error) => {
-                console.error('Firebase initial load error:', error);
-                loadFromLocalStorage();
-            });
-        } catch (error) {
-            console.error('Firebase setup error:', error);
-            loadFromLocalStorage();
-        }
-    } else {
-        loadFromLocalStorage();
-    }
-});
-
-function loadFromLocalStorage() {
-    const stored = localStorage.getItem('allSkiDays');
-    if (stored) {
-        try {
-            allSkiDays = JSON.parse(stored);
-        } catch (e) {
-            console.error('localStorage parse error:', e);
-        }
-    }
     displaySkiDays();
     updateStats();
-}
-
-// Save to Firebase and localStorage
-function saveData() {
-    localStorage.setItem('allSkiDays', JSON.stringify(allSkiDays));
-    if (useFirebase) {
-        saveToFirebase();
-    }
-}
-
-// Save to Firebase
-function saveToFirebase() {
-    if (database) {
-        database.ref('skiDays').set(allSkiDays).catch((error) => {
-            console.error('Firebase save error:', error);
-            showFeedback('Saved locally (offline)');
-        });
-    }
-}
+});
 
 // User change
 userSelect.addEventListener('change', (e) => {
@@ -161,7 +83,8 @@ form.addEventListener('submit', (e) => {
     allSkiDays[currentUser].push(newSkiDay);
     allSkiDays[currentUser].sort((a, b) => new Date(b.date) - new Date(a.date));
     
-    saveData();
+    localStorage.setItem('allSkiDays', JSON.stringify(allSkiDays));
+    
     displaySkiDays();
     updateStats();
     form.reset();
@@ -230,7 +153,7 @@ function createDayCard(day) {
 function deleteSkiDay(id) {
     if (confirm('Delete this ski day?')) {
         allSkiDays[currentUser] = allSkiDays[currentUser].filter(day => day.id !== id);
-        saveData();
+        localStorage.setItem('allSkiDays', JSON.stringify(allSkiDays));
         displaySkiDays();
         updateStats();
         showFeedback('Deleted!');
@@ -289,7 +212,8 @@ editForm.addEventListener('submit', (e) => {
     };
     
     allSkiDays[currentUser].sort((a, b) => new Date(b.date) - new Date(a.date));
-    saveData();
+    localStorage.setItem('allSkiDays', JSON.stringify(allSkiDays));
+    
     displaySkiDays();
     updateStats();
     modal.style.display = 'none';
@@ -319,12 +243,14 @@ function showFeedback(message) {
     }, 2000);
 }
 
-// Stats functionality (same as before)
+// Stats functionality
 function updateStatsView() {
-    const statsView = document.getElementById('stats-view').value;
-    const statsContent = document.getElementById('stats-content');
+    const statsView = document.getElementById('stats-view');
+    if (!statsView) return;
     
-    switch(statsView) {
+    const view = statsView.value;
+    
+    switch(view) {
         case 'leaders':
             showLeaderboard();
             break;
@@ -412,7 +338,6 @@ function showExtremeStats() {
     const content = document.getElementById('stats-content');
     let coldestDay = null;
     let deepestPowder = null;
-    let mostRuns = null;
     
     Object.entries(allSkiDays).forEach(([user, days]) => {
         days.forEach(day => {
@@ -422,10 +347,6 @@ function showExtremeStats() {
             
             if (day.snowfall && (!deepestPowder || day.snowfall > deepestPowder.snowfall)) {
                 deepestPowder = { ...day, user: user };
-            }
-            
-            if (day.runs && (!mostRuns || day.runs.split(',').length > (mostRuns.runs?.split(',').length || 0))) {
-                mostRuns = { ...day, user: user };
             }
         });
     });
