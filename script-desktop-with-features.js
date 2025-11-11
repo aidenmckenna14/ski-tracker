@@ -804,12 +804,9 @@ async function checkWeatherAlerts() {
     console.log('✅ Starting weather API calls...');
     
     const today = new Date().toDateString();
+    const cachedData = JSON.parse(localStorage.getItem('weatherCache')) || {};
     
-    // Clear any old cached data to avoid format issues
-    localStorage.removeItem('weatherCache');
-    console.log('Cleared old weather cache');
-    
-    const cachedData = {};
+    console.log('Cached data:', cachedData);
     
     // Check if we have recent data (within 6 hours)
     if (cachedData.date === today && cachedData.timestamp && 
@@ -947,6 +944,13 @@ async function checkWeatherAlerts() {
     };
     localStorage.setItem('weatherCache', JSON.stringify(cacheData));
     localStorage.setItem('weatherApiCalls', JSON.stringify(apiCalls));
+    
+    console.log('=== FINAL RESULTS ===');
+    console.log('Total alerts found:', alerts.length);
+    console.log('Alert data:', alerts);
+    console.log('Total forecasts found:', forecasts.length);
+    console.log('Forecast data:', forecasts);
+    console.log('Calling displayWeatherAlerts with data...');
     
     displayWeatherAlerts({ alerts, forecasts });
 }
