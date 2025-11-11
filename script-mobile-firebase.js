@@ -1,12 +1,19 @@
-// Mobile version with shared localStorage
+// Firebase-enabled version with real-time sync
 let currentUser = 'aiden';
-let allSkiDays = JSON.parse(localStorage.getItem('allSkiDays')) || {
+let allSkiDays = {
     aiden: [],
     jack: [],
     matt: [],
     mike: [],
     reece: []
 };
+
+// Check if Firebase is available
+const useFirebase = typeof firebase !== 'undefined';
+let database = null;
+if (useFirebase) {
+    database = firebase.database();
+}
 
 function getCurrentUserDays() {
     return allSkiDays[currentUser] || [];
@@ -47,9 +54,58 @@ function showTab(tab) {
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     currentUser = userSelect.value;
-    displaySkiDays();
-    updateStats();
+    
+    if (useFirebase) {
+        // Listen for Firebase changes
+        database.ref('skiDays').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                allSkiDays = data;
+                displaySkiDays();
+                updateStats();
+            }
+        });
+        
+        // Load initial data from Firebase
+        database.ref('skiDays').once('value').then((snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                allSkiDays = data;
+            } else {
+                // If no data in Firebase, save current local data
+                saveToFirebase();
+            }
+            displaySkiDays();
+            updateStats();
+        });
+    } else {
+        // Fallback to localStorage
+        const stored = localStorage.getItem('allSkiDays');
+        if (stored) {
+            allSkiDays = JSON.parse(stored);
+        }
+        displaySkiDays();
+        updateStats();
+    }
 });
+
+// Save to Firebase and localStorage
+function saveData() {
+    localStorage.setItem('allSkiDays', JSON.stringify(allSkiDays));
+    if (useFirebase) {
+        saveToFirebase();
+    }
+}
+
+// Save to Firebase
+function saveToFirebase() {
+    if (database) {
+        database.ref('skiDays').set(allSkiDays).catch((error) => {
+            console.error('Firebase save error:', error);
+            showFeedback('Saved locally (offline)');
+        });
+    }
+}
 
 // User change
 userSelect.addEventListener('change', (e) => {
@@ -77,8 +133,7 @@ form.addEventListener('submit', (e) => {
     allSkiDays[currentUser].push(newSkiDay);
     allSkiDays[currentUser].sort((a, b) => new Date(b.date) - new Date(a.date));
     
-    localStorage.setItem('allSkiDays', JSON.stringify(allSkiDays));
-    
+    saveData();
     displaySkiDays();
     updateStats();
     form.reset();
@@ -147,7 +202,7 @@ function createDayCard(day) {
 function deleteSkiDay(id) {
     if (confirm('Delete this ski day?')) {
         allSkiDays[currentUser] = allSkiDays[currentUser].filter(day => day.id !== id);
-        localStorage.setItem('allSkiDays', JSON.stringify(allSkiDays));
+        saveData();
         displaySkiDays();
         updateStats();
         showFeedback('Deleted!');
@@ -206,8 +261,7 @@ editForm.addEventListener('submit', (e) => {
     };
     
     allSkiDays[currentUser].sort((a, b) => new Date(b.date) - new Date(a.date));
-    localStorage.setItem('allSkiDays', JSON.stringify(allSkiDays));
-    
+    saveData();
     displaySkiDays();
     updateStats();
     modal.style.display = 'none';
@@ -237,7 +291,7 @@ function showFeedback(message) {
     }, 2000);
 }
 
-// Stats functionality
+// Stats functionality (same as before)
 function updateStatsView() {
     const statsView = document.getElementById('stats-view').value;
     const statsContent = document.getElementById('stats-content');
@@ -262,7 +316,6 @@ function showLeaderboard() {
     const content = document.getElementById('stats-content');
     const userStats = [];
     
-    // Calculate stats for each user
     ['aiden', 'jack', 'matt', 'mike', 'reece'].forEach(user => {
         const days = allSkiDays[user] || [];
         const totalSnow = days.reduce((sum, day) => sum + day.snowfall, 0);
@@ -277,7 +330,6 @@ function showLeaderboard() {
         });
     });
     
-    // Sort by total days
     userStats.sort((a, b) => b.totalDays - a.totalDays);
     
     content.innerHTML = `
@@ -304,7 +356,6 @@ function showMountainStats() {
     const content = document.getElementById('stats-content');
     const mountainCounts = {};
     
-    // Count visits to each mountain across all users
     Object.values(allSkiDays).forEach(userDays => {
         userDays.forEach(day => {
             const resort = day.resort;
@@ -312,7 +363,6 @@ function showMountainStats() {
         });
     });
     
-    // Sort by visit count
     const sortedMountains = Object.entries(mountainCounts)
         .sort((a, b) => b[1] - a[1]);
     
@@ -336,20 +386,16 @@ function showExtremeStats() {
     let deepestPowder = null;
     let mostRuns = null;
     
-    // Find extremes across all users
     Object.entries(allSkiDays).forEach(([user, days]) => {
         days.forEach(day => {
-            // Coldest day
             if (day.temperature && (!coldestDay || parseInt(day.temperature) < parseInt(coldestDay.temperature))) {
                 coldestDay = { ...day, user: user };
             }
             
-            // Deepest powder
             if (day.snowfall && (!deepestPowder || day.snowfall > deepestPowder.snowfall)) {
                 deepestPowder = { ...day, user: user };
             }
             
-            // Most runs (if tracking run count in notes)
             if (day.runs && (!mostRuns || day.runs.split(',').length > (mostRuns.runs?.split(',').length || 0))) {
                 mostRuns = { ...day, user: user };
             }
@@ -361,14 +407,14 @@ function showExtremeStats() {
             <h3>Extreme Days</h3>
             ${coldestDay ? `
                 <div class="extreme-item">
-                    <h4>🥶 Coldest Day</h4>
+                    <h4>Coldest Day</h4>
                     <p>${coldestDay.temperature}°F at ${coldestDay.resort}</p>
                     <p class="extreme-user">${coldestDay.user.charAt(0).toUpperCase() + coldestDay.user.slice(1)} on ${new Date(coldestDay.date).toLocaleDateString()}</p>
                 </div>
             ` : ''}
             ${deepestPowder ? `
                 <div class="extreme-item">
-                    <h4>🏔️ Deepest Powder</h4>
+                    <h4>Deepest Powder</h4>
                     <p>${deepestPowder.snowfall}" at ${deepestPowder.resort}</p>
                     <p class="extreme-user">${deepestPowder.user.charAt(0).toUpperCase() + deepestPowder.user.slice(1)} on ${new Date(deepestPowder.date).toLocaleDateString()}</p>
                 </div>

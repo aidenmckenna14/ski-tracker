@@ -31,6 +31,7 @@
         <div class="tab-container">
             <button class="tab-button active" onclick="showTab('add')">Add Day</button>
             <button class="tab-button" onclick="showTab('view')">View Days</button>
+            <button class="tab-button" onclick="showTab('stats')">Stats</button>
         </div>
 
         <div id="add-tab" class="tab-content active">
@@ -113,6 +114,21 @@
                 <!-- Ski days will be added here -->
             </div>
         </div>
+
+        <div id="stats-tab" class="tab-content">
+            <div class="stats-filters">
+                <select id="stats-view" onchange="updateStatsView()">
+                    <option value="leaders">Season Leaders</option>
+                    <option value="mountains">Mountain Stats</option>
+                    <option value="extremes">Extreme Days</option>
+                    <option value="compare">Compare Skiers</option>
+                </select>
+            </div>
+            
+            <div id="stats-content">
+                <!-- Stats will be displayed here -->
+            </div>
+        </div>
     </div>
 
     <!-- Edit Modal -->
@@ -187,6 +203,10 @@
         </div>
     </div>
 
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
     <script src="script-mobile.js"></script>
     <script>
         // Register service worker for PWA

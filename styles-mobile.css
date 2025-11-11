@@ -307,6 +307,140 @@ input:focus, select:focus, textarea:focus {
     }
 }
 
+/* Stats Styles */
+.stats-filters {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.stats-filters select {
+    width: 200px;
+    padding: 10px;
+}
+
+#stats-content h3 {
+    text-align: center;
+    color: var(--pine-green);
+    margin-bottom: 20px;
+}
+
+/* Leaderboard */
+.leaderboard {
+    padding: 10px;
+}
+
+.leader-card {
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, rgba(139, 195, 74, 0.2), rgba(215, 204, 200, 0.3));
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 15px;
+}
+
+.leader-rank {
+    font-size: 2em;
+    font-weight: bold;
+    color: var(--forest-green);
+    width: 50px;
+    text-align: center;
+}
+
+.leader-info h4 {
+    color: var(--pine-green);
+    margin-bottom: 5px;
+}
+
+.leader-stats {
+    display: flex;
+    gap: 15px;
+    font-size: 0.9em;
+    color: var(--earth-brown);
+}
+
+/* Mountain Stats */
+.mountain-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 15px;
+    background: rgba(255, 255, 255, 0.5);
+    margin-bottom: 8px;
+    border-radius: 10px;
+}
+
+.mountain-name {
+    color: var(--forest-green);
+    font-weight: bold;
+}
+
+.mountain-count {
+    color: var(--moss-green);
+}
+
+/* Extreme Stats */
+.extreme-item {
+    background: linear-gradient(135deg, var(--sky-blue), rgba(255, 255, 255, 0.3));
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 15px;
+    text-align: center;
+}
+
+.extreme-item h4 {
+    color: var(--pine-green);
+    margin-bottom: 10px;
+    font-size: 1.2em;
+}
+
+.extreme-item p {
+    color: var(--earth-brown);
+    margin: 5px 0;
+}
+
+.extreme-user {
+    font-style: italic;
+    font-size: 0.9em;
+}
+
+/* Compare Skiers */
+.compare-selects {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.compare-selects select {
+    width: 120px;
+}
+
+.comparison-grid {
+    display: grid;
+    gap: 15px;
+}
+
+.compare-stat {
+    background: rgba(255, 255, 255, 0.5);
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.compare-values {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.compare-values span {
+    font-size: 0.9em;
+}
+
+.winner {
+    color: var(--forest-green);
+    font-weight: bold;
+}
+
 /* iOS specific */
 @supports (-webkit-touch-callout: none) {
     input[type="date"],
