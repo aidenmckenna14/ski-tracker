@@ -8,8 +8,9 @@ let allSkiDays = JSON.parse(localStorage.getItem('allSkiDays')) || {
     reece: []
 };
 
-// Vermont resort locations
-const vermontResorts = [
+// New England ski resorts  
+const newEnglandResorts = [
+    // Vermont - Your local mountains
     { name: 'Bolton Valley', lat: 44.4217, lon: -72.8497 },
     { name: 'Stowe', lat: 44.5303, lon: -72.7814 },
     { name: 'Jay Peak', lat: 44.9379, lon: -72.5045 },
@@ -17,9 +18,18 @@ const vermontResorts = [
     { name: 'Sugarbush', lat: 44.1359, lon: -72.8944 },
     { name: 'Mad River Glen', lat: 44.2025, lon: -72.9175 },
     { name: 'Smugglers Notch', lat: 44.5758, lon: -72.7761 },
+    { name: 'Mount Snow', lat: 42.9602, lon: -72.9204 },
     { name: 'Okemo', lat: 43.4018, lon: -72.7170 },
     { name: 'Stratton', lat: 43.1135, lon: -72.9082 },
-    { name: 'Mount Snow', lat: 42.9602, lon: -72.9204 }
+    // New Hampshire
+    { name: 'Bretton Woods', lat: 44.2581, lon: -71.4375 },
+    { name: 'Cannon Mountain', lat: 44.1564, lon: -71.6989 },
+    { name: 'Loon Mountain', lat: 44.0364, lon: -71.6203 },
+    { name: 'Waterville Valley', lat: 43.9667, lon: -71.5167 },
+    { name: 'Wildcat', lat: 44.2592, lon: -71.2031 },
+    { name: 'Attitash', lat: 44.1103, lon: -71.2578 },
+    { name: 'Sunday River', lat: 44.4689, lon: -70.8644 },
+    { name: 'Sugarloaf', lat: 45.0314, lon: -70.3128 }
 ];
 
 // Badge definitions
@@ -664,7 +674,7 @@ window.updatePassROI = function() {
 function initializeWeatherAlerts() {
     // Create resort checkboxes
     const checkboxesContainer = document.getElementById('resort-checkboxes');
-    checkboxesContainer.innerHTML = vermontResorts.map(resort => `
+    checkboxesContainer.innerHTML = newEnglandResorts.map(resort => `
         <label class="resort-checkbox">
             <input type="checkbox" value="${resort.name}" checked>
             ${resort.name}
@@ -737,11 +747,11 @@ async function checkWeatherAlerts() {
         return;
     }
     
-    const selectedResorts = settings.selectedResorts || vermontResorts.map(r => r.name);
+    const selectedResorts = settings.selectedResorts || newEnglandResorts.map(r => r.name);
     const alerts = [];
     const forecasts = [];
     
-    for (const resort of vermontResorts) {
+    for (const resort of newEnglandResorts) {
         if (!selectedResorts.includes(resort.name)) continue;
         
         try {

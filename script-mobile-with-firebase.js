@@ -758,7 +758,8 @@ window.updatePassROI = function() {
 }
 
 // Weather Alert System
-const vermontResorts = [
+const newEnglandResorts = [
+    // Vermont - Your local mountains
     { name: 'Bolton Valley', lat: 44.4217, lon: -72.8497 },
     { name: 'Stowe', lat: 44.5303, lon: -72.7814 },
     { name: 'Jay Peak', lat: 44.9379, lon: -72.5045 },
@@ -766,14 +767,25 @@ const vermontResorts = [
     { name: 'Sugarbush', lat: 44.1359, lon: -72.9056 },
     { name: 'Mad River Glen', lat: 44.2025, lon: -72.9178 },
     { name: 'Smugglers Notch', lat: 44.5894, lon: -72.7765 },
-    { name: 'Mount Snow', lat: 42.9602, lon: -72.9204 }
+    { name: 'Mount Snow', lat: 42.9602, lon: -72.9204 },
+    { name: 'Okemo', lat: 43.4018, lon: -72.7170 },
+    { name: 'Stratton', lat: 43.1135, lon: -72.9082 },
+    // New Hampshire
+    { name: 'Bretton Woods', lat: 44.2581, lon: -71.4375 },
+    { name: 'Cannon Mountain', lat: 44.1564, lon: -71.6989 },
+    { name: 'Loon Mountain', lat: 44.0364, lon: -71.6203 },
+    { name: 'Waterville Valley', lat: 43.9667, lon: -71.5167 },
+    { name: 'Wildcat', lat: 44.2592, lon: -71.2031 },
+    { name: 'Attitash', lat: 44.1103, lon: -71.2578 },
+    { name: 'Sunday River', lat: 44.4689, lon: -70.8644 },
+    { name: 'Sugarloaf', lat: 45.0314, lon: -70.3128 }
 ];
 
 let weatherSettings = JSON.parse(localStorage.getItem('weatherSettings')) || {
     apiKey: '',
     enableAlerts: true,
     snowThreshold: 6,
-    monitoredResorts: ['Bolton Valley', 'Stowe']
+    monitoredResorts: newEnglandResorts.map(r => r.name) // Monitor all New England resorts by default
 };
 
 let weatherCache = {};
@@ -831,7 +843,7 @@ function loadWeatherTab() {
     
     // Create resort checkboxes
     const checkboxContainer = document.getElementById('resort-checkboxes');
-    checkboxContainer.innerHTML = vermontResorts.map(resort => `
+    checkboxContainer.innerHTML = newEnglandResorts.map(resort => `
         <label>
             <input type="checkbox" class="resort-checkbox" value="${resort.name}" 
                 ${weatherSettings.monitoredResorts.includes(resort.name) ? 'checked' : ''}>
@@ -860,7 +872,7 @@ async function checkWeatherAlerts() {
     const forecasts = [];
     
     for (const resortName of weatherSettings.monitoredResorts) {
-        const resort = vermontResorts.find(r => r.name === resortName);
+        const resort = newEnglandResorts.find(r => r.name === resortName);
         if (!resort) continue;
         
         // Check cache first
