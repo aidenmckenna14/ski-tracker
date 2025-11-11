@@ -912,7 +912,7 @@ async function checkWeatherAlerts() {
                     const periodDate = new Date(period.dt * 1000);
                     const matches = periodDate.getDate() === weekend.getDate();
                     if (matches) {
-                        console.log(`Found weekend data for ${resort.name}:`, periodDate, weekendData.weather[0].description);
+                        console.log(`Found weekend data for ${resort.name}:`, periodDate, period.weather[0].description);
                     }
                     return matches;
                 });
