@@ -441,6 +441,188 @@ input:focus, select:focus, textarea:focus {
     font-weight: bold;
 }
 
+/* Goals and Badges */
+.goals-section, .achievements-section {
+    margin-bottom: 30px;
+}
+
+.goal-card {
+    background: rgba(255, 255, 255, 0.5);
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 15px;
+    border: 2px solid var(--sage-green);
+}
+
+.goal-card.complete {
+    border-color: var(--forest-green);
+    background: linear-gradient(135deg, rgba(129, 199, 132, 0.3), rgba(255, 255, 255, 0.5));
+}
+
+.goal-progress {
+    height: 20px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 10px 0;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--moss-green), var(--forest-green));
+    transition: width 0.5s ease;
+}
+
+.add-goal-btn {
+    width: 100%;
+    padding: 12px;
+    background: var(--sage-green);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-weight: bold;
+    margin-top: 15px;
+}
+
+.goal-form {
+    background: rgba(255, 255, 255, 0.8);
+    padding: 20px;
+    border-radius: 15px;
+}
+
+.goal-form select, .goal-form input {
+    display: block;
+    width: 100%;
+    margin: 10px 0;
+}
+
+.goal-form button {
+    margin: 5px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 15px;
+    font-weight: bold;
+}
+
+/* Badges Grid */
+#badges-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.badge {
+    text-align: center;
+    padding: 20px 10px;
+    border-radius: 15px;
+    transition: all 0.3s;
+}
+
+.badge.earned {
+    background: linear-gradient(135deg, var(--sage-green), var(--sky-blue));
+    color: white;
+}
+
+.badge.locked {
+    background: rgba(0, 0, 0, 0.1);
+    opacity: 0.5;
+}
+
+.badge-icon {
+    font-size: 2em;
+    margin-bottom: 10px;
+}
+
+.badge-name {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.badge-desc {
+    font-size: 0.8em;
+}
+
+/* Season Pass ROI */
+.pass-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.pass-input {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.pass-input input {
+    width: 100px;
+    text-align: center;
+}
+
+.roi-summary {
+    display: flex;
+    justify-content: space-around;
+    background: linear-gradient(135deg, var(--sage-green), var(--sky-blue));
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+}
+
+.roi-stat {
+    text-align: center;
+    color: white;
+}
+
+.roi-stat h4 {
+    font-size: 0.9em;
+    margin-bottom: 10px;
+}
+
+.big-number {
+    font-size: 2em;
+    font-weight: bold;
+}
+
+.user-roi-card {
+    background: rgba(255, 255, 255, 0.5);
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+}
+
+.user-roi-card h4 {
+    color: var(--pine-green);
+    margin-bottom: 10px;
+}
+
+.roi-details {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9em;
+}
+
+.savings {
+    color: var(--forest-green);
+    font-weight: bold;
+}
+
+.loss {
+    color: var(--warning-red);
+}
+
+/* Enhanced leaderboard */
+.leader-card.enhanced .leader-extra {
+    font-size: 0.8em;
+    color: var(--earth-brown);
+    margin-top: 5px;
+}
+
+.leader-stats {
+    flex-wrap: wrap;
+}
+
 /* iOS specific */
 @supports (-webkit-touch-callout: none) {
     input[type="date"],

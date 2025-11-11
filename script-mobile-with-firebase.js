@@ -31,16 +31,27 @@ window.showTab = function(tab) {
         content.classList.remove('active');
     });
     
-    if (tab === 'add') {
-        document.querySelectorAll('.tab-button')[0].classList.add('active');
-        document.getElementById('add-tab').classList.add('active');
-    } else if (tab === 'view') {
-        document.querySelectorAll('.tab-button')[1].classList.add('active');
-        document.getElementById('view-tab').classList.add('active');
-    } else if (tab === 'stats') {
-        document.querySelectorAll('.tab-button')[2].classList.add('active');
-        document.getElementById('stats-tab').classList.add('active');
+    const tabIndex = {
+        'add': 0,
+        'view': 1,
+        'stats': 2,
+        'goals': 3,
+        'pass': 4,
+        'weather': 5
+    };
+    
+    document.querySelectorAll('.tab-button')[tabIndex[tab]].classList.add('active');
+    document.getElementById(tab + '-tab').classList.add('active');
+    
+    // Load content for specific tabs
+    if (tab === 'stats') {
         updateStatsView();
+    } else if (tab === 'goals') {
+        loadGoalsAndBadges();
+    } else if (tab === 'pass') {
+        updatePassROI();
+    } else if (tab === 'weather') {
+        loadWeatherTab();
     }
 }
 
@@ -86,6 +97,28 @@ function setupFirebaseSync() {
                 localStorage.setItem('allSkiDays', JSON.stringify(allSkiDays));
                 displaySkiDays();
                 updateStats();
+            }
+        });
+        
+        // Listen for weather settings changes from Firebase
+        db.ref('weatherSettings').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                weatherSettings = data;
+                localStorage.setItem('weatherSettings', JSON.stringify(weatherSettings));
+                
+                // Update UI if weather tab is open
+                if (document.getElementById('weather-api-key')) {
+                    document.getElementById('weather-api-key').value = weatherSettings.apiKey || '';
+                    document.getElementById('enable-alerts').checked = weatherSettings.enableAlerts;
+                    document.getElementById('snow-threshold').value = weatherSettings.snowThreshold || 6;
+                    
+                    // Update resort checkboxes
+                    document.querySelectorAll('.resort-checkbox').forEach(cb => {
+                        cb.checked = weatherSettings.monitoredResorts && 
+                                   weatherSettings.monitoredResorts.includes(cb.value);
+                    });
+                }
             }
         });
         
@@ -537,3 +570,442 @@ function compareSkiers() {
         </div>
     `;
 }
+
+// Badge System
+const badges = [
+    { id: 'early_bird', name: 'Early Bird', description: 'First tracks before 9 AM', icon: '🌅', check: (days) => days.some(d => d.notes && d.notes.toLowerCase().includes('first tracks')) },
+    { id: 'powder_hound', name: 'Powder Hound', description: '5 powder days', icon: '🏂', check: (days) => days.filter(d => d.conditions === 'Powder').length >= 5 },
+    { id: 'storm_chaser', name: 'Storm Chaser', description: 'Ski in active snowfall', icon: '🌨️', check: (days) => days.some(d => d.weather === 'Snowing') },
+    { id: 'die_hard', name: 'Die Hard', description: 'Ski below 0°F', icon: '🥶', check: (days) => days.some(d => parseInt(d.temperature) < 0) },
+    { id: 'weekend_warrior', name: 'Weekend Warrior', description: '10 weekend days', icon: '📅', check: (days) => days.filter(d => { const dow = new Date(d.date).getDay(); return dow === 0 || dow === 6; }).length >= 10 },
+    { id: 'bolton_local', name: 'Bolton Local', description: '20 days at Bolton', icon: '🏔️', check: (days) => days.filter(d => d.resort.toLowerCase().includes('bolton')).length >= 20 },
+    { id: 'explorer', name: 'Mountain Explorer', description: '5 different resorts', icon: '🗺️', check: (days) => [...new Set(days.map(d => d.resort))].length >= 5 },
+    { id: 'centurion', name: 'Centurion', description: '100 total days', icon: '💯', check: (days) => days.length >= 100 },
+    { id: 'consistent', name: 'Consistent', description: '3 days in one week', icon: '📊', check: (days) => checkConsecutiveDays(days, 3, 7) },
+    { id: 'dedicated', name: 'Dedicated', description: 'Ski every month Dec-Mar', icon: '🗓️', check: (days) => checkAllMonths(days) }
+];
+
+function checkConsecutiveDays(days, required, window) {
+    const sorted = days.map(d => new Date(d.date)).sort((a, b) => a - b);
+    for (let i = 0; i < sorted.length - required + 1; i++) {
+        const diff = (sorted[i + required - 1] - sorted[i]) / (1000 * 60 * 60 * 24);
+        if (diff < window) return true;
+    }
+    return false;
+}
+
+function checkAllMonths(days) {
+    const months = days.map(d => new Date(d.date).getMonth());
+    return [11, 0, 1, 2].every(m => months.includes(m)); // Dec, Jan, Feb, Mar
+}
+
+// Goals System
+let userGoals = JSON.parse(localStorage.getItem('skiGoals')) || {};
+
+window.showAddGoalForm = function() {
+    const goalTypes = [
+        { value: 'days', label: 'Total Days' },
+        { value: 'powder', label: 'Powder Days' },
+        { value: 'resorts', label: 'Different Resorts' },
+        { value: 'bolton', label: 'Bolton Valley Days' }
+    ];
+    
+    const form = `
+        <div class="goal-form">
+            <h3>Set New Goal</h3>
+            <select id="goal-type">
+                ${goalTypes.map(g => `<option value="${g.value}">${g.label}</option>`).join('')}
+            </select>
+            <input type="number" id="goal-target" placeholder="Target" min="1">
+            <button onclick="addGoal()">Add Goal</button>
+            <button onclick="loadGoalsAndBadges()">Cancel</button>
+        </div>
+    `;
+    
+    document.getElementById('goals-list').innerHTML = form;
+}
+
+window.addGoal = function() {
+    const type = document.getElementById('goal-type').value;
+    const target = parseInt(document.getElementById('goal-target').value);
+    
+    if (!target) return;
+    
+    if (!userGoals[currentUser]) {
+        userGoals[currentUser] = [];
+    }
+    
+    userGoals[currentUser].push({
+        type: type,
+        target: target,
+        created: new Date().toISOString()
+    });
+    
+    localStorage.setItem('skiGoals', JSON.stringify(userGoals));
+    loadGoalsAndBadges();
+}
+
+window.loadGoalsAndBadges = function() {
+    // Load goals
+    const goals = userGoals[currentUser] || [];
+    const currentDays = getCurrentUserDays();
+    
+    const goalsHTML = goals.map(goal => {
+        let current = 0;
+        switch(goal.type) {
+            case 'days': current = currentDays.length; break;
+            case 'powder': current = currentDays.filter(d => d.conditions === 'Powder').length; break;
+            case 'resorts': current = [...new Set(currentDays.map(d => d.resort))].length; break;
+            case 'bolton': current = currentDays.filter(d => d.resort.toLowerCase().includes('bolton')).length; break;
+        }
+        
+        const progress = Math.min(100, (current / goal.target) * 100);
+        const complete = current >= goal.target;
+        
+        return `
+            <div class="goal-card ${complete ? 'complete' : ''}">
+                <h4>${goal.type.charAt(0).toUpperCase() + goal.type.slice(1)} Goal</h4>
+                <div class="goal-progress">
+                    <div class="progress-bar" style="width: ${progress}%"></div>
+                </div>
+                <p>${current} / ${goal.target} ${complete ? '✅' : ''}</p>
+            </div>
+        `;
+    }).join('');
+    
+    document.getElementById('goals-list').innerHTML = goalsHTML || '<p>No goals set yet!</p>';
+    
+    // Load badges
+    const earnedBadges = badges.filter(badge => badge.check(currentDays));
+    const badgesHTML = badges.map(badge => {
+        const earned = earnedBadges.includes(badge);
+        return `
+            <div class="badge ${earned ? 'earned' : 'locked'}">
+                <div class="badge-icon">${badge.icon}</div>
+                <div class="badge-name">${badge.name}</div>
+                <div class="badge-desc">${badge.description}</div>
+            </div>
+        `;
+    }).join('');
+    
+    document.getElementById('badges-grid').innerHTML = badgesHTML;
+}
+
+// Season Pass ROI
+window.updatePassROI = function() {
+    const passPrice = parseFloat(document.getElementById('pass-price')?.value) || 599; // Bolton Valley typical price
+    localStorage.setItem('passPrice', passPrice);
+    
+    // Calculate for all users
+    const userStats = ['aiden', 'jack', 'matt', 'mike', 'reece'].map(user => {
+        const days = allSkiDays[user] || [];
+        const boltonDays = days.filter(d => d.resort.toLowerCase().includes('bolton')).length;
+        const costPerDay = boltonDays > 0 ? (passPrice / boltonDays).toFixed(2) : 'N/A';
+        const breakEven = Math.ceil(passPrice / 89); // $89 is typical day ticket price
+        
+        return {
+            name: user.charAt(0).toUpperCase() + user.slice(1),
+            days: boltonDays,
+            costPerDay: costPerDay,
+            savings: boltonDays > 0 ? ((boltonDays * 89) - passPrice).toFixed(0) : 0
+        };
+    });
+    
+    const totalDays = userStats.reduce((sum, u) => sum + u.days, 0);
+    const avgCostPerDay = totalDays > 0 ? (passPrice / totalDays).toFixed(2) : 'N/A';
+    
+    // Overall stats
+    const statsHTML = `
+        <div class="roi-summary">
+            <div class="roi-stat">
+                <h4>Total Bolton Days</h4>
+                <p class="big-number">${totalDays}</p>
+            </div>
+            <div class="roi-stat">
+                <h4>Cost Per Day</h4>
+                <p class="big-number">$${avgCostPerDay}</p>
+            </div>
+            <div class="roi-stat">
+                <h4>Break Even</h4>
+                <p class="big-number">${Math.ceil(passPrice / 89)} days</p>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('pass-stats').innerHTML = statsHTML;
+    
+    // Individual stats
+    const userHTML = userStats.map(user => `
+        <div class="user-roi-card">
+            <h4>${user.name}</h4>
+            <div class="roi-details">
+                <span>${user.days} days</span>
+                <span>$${user.costPerDay}/day</span>
+                <span class="${parseInt(user.savings) > 0 ? 'savings' : 'loss'}">
+                    ${parseInt(user.savings) > 0 ? '+' : ''}$${user.savings}
+                </span>
+            </div>
+        </div>
+    `).join('');
+    
+    document.getElementById('user-pass-stats').innerHTML = userHTML;
+    
+    // Load saved price on init
+    const savedPrice = localStorage.getItem('passPrice');
+    if (savedPrice && document.getElementById('pass-price')) {
+        document.getElementById('pass-price').value = savedPrice;
+    }
+}
+
+// Weather Alert System
+const vermontResorts = [
+    { name: 'Bolton Valley', lat: 44.4217, lon: -72.8497 },
+    { name: 'Stowe', lat: 44.5303, lon: -72.7814 },
+    { name: 'Jay Peak', lat: 44.9379, lon: -72.5045 },
+    { name: 'Killington', lat: 43.6775, lon: -72.7933 },
+    { name: 'Sugarbush', lat: 44.1359, lon: -72.9056 },
+    { name: 'Mad River Glen', lat: 44.2025, lon: -72.9178 },
+    { name: 'Smugglers Notch', lat: 44.5894, lon: -72.7765 },
+    { name: 'Mount Snow', lat: 42.9602, lon: -72.9204 }
+];
+
+let weatherSettings = JSON.parse(localStorage.getItem('weatherSettings')) || {
+    apiKey: '',
+    enableAlerts: true,
+    snowThreshold: 6,
+    monitoredResorts: ['Bolton Valley', 'Stowe']
+};
+
+let weatherCache = {};
+const CACHE_DURATION = 60 * 60 * 1000; // 1 hour
+let dailyApiCalls = parseInt(localStorage.getItem('dailyApiCalls')) || 0;
+const MAX_DAILY_CALLS = 900;
+
+// Reset API call count daily
+const lastReset = localStorage.getItem('apiCallResetDate');
+const today = new Date().toDateString();
+if (lastReset !== today) {
+    dailyApiCalls = 0;
+    localStorage.setItem('apiCallResetDate', today);
+    localStorage.setItem('dailyApiCalls', '0');
+}
+
+window.saveWeatherSettings = function() {
+    const apiKey = document.getElementById('weather-api-key').value;
+    if (apiKey) {
+        weatherSettings.apiKey = apiKey;
+        weatherSettings.enableAlerts = document.getElementById('enable-alerts').checked;
+        weatherSettings.snowThreshold = parseInt(document.getElementById('snow-threshold').value) || 6;
+        
+        // Get monitored resorts
+        weatherSettings.monitoredResorts = [];
+        document.querySelectorAll('.resort-checkbox:checked').forEach(cb => {
+            weatherSettings.monitoredResorts.push(cb.value);
+        });
+        
+        localStorage.setItem('weatherSettings', JSON.stringify(weatherSettings));
+        
+        // Save to Firebase so everyone can use the same API key
+        if (typeof firebase !== 'undefined') {
+            try {
+                firebase.database().ref('weatherSettings').set(weatherSettings);
+            } catch (error) {
+                console.error('Error saving weather settings to Firebase:', error);
+            }
+        }
+        
+        showFeedback('Weather settings saved for everyone!');
+        checkWeatherAlerts();
+    } else {
+        showFeedback('Please enter API key');
+    }
+}
+
+function loadWeatherTab() {
+    // Load saved settings
+    if (weatherSettings.apiKey && document.getElementById('weather-api-key')) {
+        document.getElementById('weather-api-key').value = weatherSettings.apiKey;
+    }
+    document.getElementById('enable-alerts').checked = weatherSettings.enableAlerts;
+    document.getElementById('snow-threshold').value = weatherSettings.snowThreshold;
+    
+    // Create resort checkboxes
+    const checkboxContainer = document.getElementById('resort-checkboxes');
+    checkboxContainer.innerHTML = vermontResorts.map(resort => `
+        <label>
+            <input type="checkbox" class="resort-checkbox" value="${resort.name}" 
+                ${weatherSettings.monitoredResorts.includes(resort.name) ? 'checked' : ''}>
+            ${resort.name}
+        </label>
+    `).join('');
+    
+    // Check for alerts if API key exists
+    if (weatherSettings.apiKey) {
+        checkWeatherAlerts();
+    } else {
+        document.getElementById('alerts-list').innerHTML = '<p>Enter your API key to see weather alerts</p>';
+    }
+}
+
+async function checkWeatherAlerts() {
+    if (!weatherSettings.apiKey || !weatherSettings.enableAlerts) return;
+    
+    if (dailyApiCalls >= MAX_DAILY_CALLS) {
+        console.log('API call limit reached for today');
+        displayCachedAlerts();
+        return;
+    }
+    
+    const alerts = [];
+    const forecasts = [];
+    
+    for (const resortName of weatherSettings.monitoredResorts) {
+        const resort = vermontResorts.find(r => r.name === resortName);
+        if (!resort) continue;
+        
+        // Check cache first
+        const cacheKey = `${resort.name}_${new Date().toDateString()}`;
+        if (weatherCache[cacheKey] && Date.now() - weatherCache[cacheKey].timestamp < CACHE_DURATION) {
+            processWeatherData(resort, weatherCache[cacheKey].data, alerts, forecasts);
+            continue;
+        }
+        
+        try {
+            // Fetch 5-day forecast
+            const response = await fetch(
+                `https://api.openweathermap.org/data/2.5/forecast?lat=${resort.lat}&lon=${resort.lon}&appid=${weatherSettings.apiKey}&units=imperial`
+            );
+            
+            if (response.ok) {
+                const data = await response.json();
+                
+                // Cache the data
+                weatherCache[cacheKey] = {
+                    data: data,
+                    timestamp: Date.now()
+                };
+                
+                // Update API call count
+                dailyApiCalls++;
+                localStorage.setItem('dailyApiCalls', dailyApiCalls.toString());
+                
+                processWeatherData(resort, data, alerts, forecasts);
+            }
+        } catch (error) {
+            console.error('Weather API error:', error);
+        }
+    }
+    
+    // Save alerts to cache
+    localStorage.setItem('lastWeatherAlerts', JSON.stringify({ alerts, forecasts, timestamp: Date.now() }));
+    
+    displayAlerts(alerts);
+    displayWeekendForecast(forecasts);
+}
+
+function processWeatherData(resort, data, alerts, forecasts) {
+    let totalSnow = 0;
+    let hasSnowAlert = false;
+    
+    // Check next 48 hours for snow
+    for (let i = 0; i < Math.min(16, data.list.length); i++) { // 16 * 3 hours = 48 hours
+        const forecast = data.list[i];
+        if (forecast.snow && forecast.snow['3h']) {
+            // Convert mm to inches (25.4mm = 1 inch)
+            totalSnow += forecast.snow['3h'] / 25.4;
+        }
+    }
+    
+    if (totalSnow >= weatherSettings.snowThreshold) {
+        alerts.push({
+            resort: resort.name,
+            type: 'snow',
+            amount: Math.round(totalSnow),
+            message: `${resort.name} expecting ${Math.round(totalSnow)}" of snow in next 48 hours!`
+        });
+    }
+    
+    // Get weekend forecast
+    const friday = getNextWeekday(5);
+    const sunday = getNextWeekday(0);
+    
+    const weekendForecasts = data.list.filter(item => {
+        const date = new Date(item.dt * 1000);
+        return date >= friday && date <= sunday;
+    });
+    
+    if (weekendForecasts.length > 0) {
+        const avgTemp = weekendForecasts.reduce((sum, f) => sum + f.main.temp, 0) / weekendForecasts.length;
+        const totalWeekendSnow = weekendForecasts.reduce((sum, f) => {
+            return sum + (f.snow && f.snow['3h'] ? f.snow['3h'] / 25.4 : 0);
+        }, 0);
+        
+        forecasts.push({
+            resort: resort.name,
+            avgTemp: Math.round(avgTemp),
+            snowfall: Math.round(totalWeekendSnow * 10) / 10,
+            conditions: weekendForecasts[0].weather[0].main
+        });
+    }
+}
+
+function getNextWeekday(dayOfWeek) {
+    const today = new Date();
+    const currentDay = today.getDay();
+    const daysUntil = (dayOfWeek - currentDay + 7) % 7 || 7;
+    const nextDay = new Date(today);
+    nextDay.setDate(today.getDate() + daysUntil);
+    nextDay.setHours(0, 0, 0, 0);
+    return nextDay;
+}
+
+function displayAlerts(alerts) {
+    const container = document.getElementById('alerts-list');
+    if (alerts.length === 0) {
+        container.innerHTML = '<p>No snow alerts at monitored resorts</p>';
+        return;
+    }
+    
+    container.innerHTML = alerts.map(alert => `
+        <div class="weather-alert ${alert.type}">
+            <h4>${alert.resort}</h4>
+            <p>${alert.message}</p>
+        </div>
+    `).join('');
+}
+
+function displayWeekendForecast(forecasts) {
+    const container = document.getElementById('weekend-forecast');
+    if (forecasts.length === 0) {
+        container.innerHTML = '<p>No weekend forecast available</p>';
+        return;
+    }
+    
+    container.innerHTML = forecasts.map(f => `
+        <div class="weekend-forecast-card">
+            <h4>${f.resort}</h4>
+            <div class="forecast-details">
+                <span>Avg: ${f.avgTemp}°F</span>
+                <span>Snow: ${f.snowfall}"</span>
+                <span>${f.conditions}</span>
+            </div>
+        </div>
+    `).join('');
+}
+
+function displayCachedAlerts() {
+    const cached = localStorage.getItem('lastWeatherAlerts');
+    if (cached) {
+        const { alerts, forecasts } = JSON.parse(cached);
+        displayAlerts(alerts);
+        displayWeekendForecast(forecasts);
+        document.getElementById('alerts-list').innerHTML += '<p class="cache-notice">Using cached data (API limit reached)</p>';
+    }
+}
+
+// Check weather every hour if tab is open
+setInterval(() => {
+    if (document.getElementById('weather-tab').classList.contains('active')) {
+        checkWeatherAlerts();
+    }
+}, 60 * 60 * 1000);

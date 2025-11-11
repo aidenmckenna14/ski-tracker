@@ -4,11 +4,14 @@
     <meta charset="UTF-8">
     <title>Vermont Ski Tracker</title>
     <script>
-        // Redirect mobile users to mobile version
-        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        // Redirect based on device type
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || 
+                        (window.innerWidth <= 768);
+        
+        if (isMobile) {
             window.location.href = 'ski-tracker-mobile.html';
         } else {
-            window.location.href = 'ski-tracker.html';
+            window.location.href = 'ski-tracker-desktop.html';
         }
     </script>
 </head>

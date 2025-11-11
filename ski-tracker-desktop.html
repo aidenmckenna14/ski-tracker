@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New England Ski Day Tracker</title>
+    <link rel="stylesheet" href="styles-desktop.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>New England Ski Day Tracker</h1>
+            <p class="tagline">Track your Vermont & New England ski adventures</p>
+            <div class="user-menu">
+                <label for="user-select">Current Skier:</label>
+                <select id="user-select">
+                    <option value="aiden">Aiden</option>
+                    <option value="jack">Jack</option>
+                    <option value="matt">Matt</option>
+                    <option value="mike">Mike</option>
+                    <option value="reece">Reece</option>
+                </select>
+            </div>
+        </header>
+
+        <nav class="desktop-nav">
+            <button class="nav-btn active" onclick="showSection('add')">Add Ski Day</button>
+            <button class="nav-btn" onclick="showSection('view')">View Days</button>
+            <button class="nav-btn" onclick="showSection('stats')">Statistics</button>
+            <button class="nav-btn" onclick="showSection('goals')">Goals & Badges</button>
+            <button class="nav-btn" onclick="showSection('pass')">Season Pass ROI</button>
+            <button class="nav-btn" onclick="showSection('weather')">Weather Alerts</button>
+        </nav>
+
+        <main>
+            <section id="add-section" class="section active">
+                <div class="section-header">
+                    <h2>Add New Ski Day</h2>
+                    <img src="Steely.webp" alt="Ski slopes" class="header-image">
+                </div>
+                <form id="ski-day-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="date">Date:</label>
+                            <input type="date" id="date" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="resort">Resort/Mountain:</label>
+                            <input type="text" id="resort" placeholder="e.g., Stowe, Killington, Jay Peak" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="conditions">Snow Conditions:</label>
+                            <select id="conditions" required>
+                                <option value="">Select conditions...</option>
+                                <option value="Powder">Fresh Powder</option>
+                                <option value="Packed Powder">Packed Powder</option>
+                                <option value="Groomed">Groomed</option>
+                                <option value="Icy">Icy</option>
+                                <option value="Slushy">Slushy</option>
+                                <option value="Variable">Variable</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="snowfall">New Snow (inches):</label>
+                            <input type="number" id="snowfall" min="0" step="0.5" placeholder="0">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="temperature">Temperature (°F):</label>
+                            <input type="number" id="temperature" placeholder="25">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="weather">Weather:</label>
+                            <select id="weather">
+                                <option value="">Select weather...</option>
+                                <option value="Sunny">Sunny</option>
+                                <option value="Partly Cloudy">Partly Cloudy</option>
+                                <option value="Cloudy">Cloudy</option>
+                                <option value="Snowing">Snowing</option>
+                                <option value="Foggy">Foggy</option>
+                                <option value="Windy">Windy</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label for="runs">Favorite Runs/Trails:</label>
+                            <input type="text" id="runs" placeholder="e.g., Goat, Chin Clip, Paradise">
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label for="notes">Notes:</label>
+                            <textarea id="notes" rows="3" placeholder="How was the day? Any highlights?"></textarea>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">Add Ski Day</button>
+                </form>
+            </section>
+
+            <section id="view-section" class="section">
+                <div class="section-header">
+                    <h2>Your Ski Days</h2>
+                    <img src="802.jpg" alt="Vermont mountains" class="header-image">
+                </div>
+                <div class="stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Total Days:</span>
+                        <span class="stat-value" id="total-days">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Season Total Snow:</span>
+                        <span class="stat-value" id="total-snow">0"</span>
+                    </div>
+                </div>
+                <div id="days-list" class="days-list">
+                    <!-- Ski days will be dynamically added here -->
+                </div>
+            </section>
+
+            <section id="stats-section" class="section">
+                <h2>Statistics & Comparisons</h2>
+                <div class="stats-filters">
+                    <select id="stats-view" onchange="updateStatsView()">
+                        <option value="leaders">Season Leaders</option>
+                        <option value="mountains">Mountain Stats</option>
+                        <option value="extremes">Extreme Days</option>
+                        <option value="compare">Compare Skiers</option>
+                    </select>
+                </div>
+                
+                <div id="stats-content">
+                    <!-- Stats will be displayed here -->
+                </div>
+            </section>
+
+            <section id="goals-section" class="section">
+                <h2>Goals & Achievements</h2>
+                <div class="goals-achievements-grid">
+                    <div class="goals-column">
+                        <h3>Season Goals</h3>
+                        <div id="goals-list">
+                            <!-- Goals will be displayed here -->
+                        </div>
+                        <button class="add-goal-btn" onclick="showAddGoalForm()">Set New Goal</button>
+                    </div>
+                    
+                    <div class="achievements-column">
+                        <h3>Your Badges</h3>
+                        <div id="badges-grid">
+                            <!-- Badges will be displayed here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="pass-section" class="section">
+                <h2>Bolton Valley Season Pass ROI</h2>
+                <div class="pass-calculator">
+                    <div class="pass-input-group">
+                        <label>Pass Price: $</label>
+                        <input type="number" id="pass-price" placeholder="599" onchange="updatePassROI()">
+                    </div>
+                    
+                    <div id="pass-stats">
+                        <!-- Pass ROI stats will be displayed here -->
+                    </div>
+                    
+                    <div class="pass-breakdown">
+                        <h3>Usage by User</h3>
+                        <div id="user-pass-stats">
+                            <!-- Individual user stats will be displayed here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="weather-section" class="section">
+                <h2>Weather Alerts</h2>
+                <div class="weather-grid">
+                    <div class="weather-settings-column">
+                        <h3>Settings</h3>
+                        <div class="api-key-input">
+                            <label>OpenWeatherMap API Key:</label>
+                            <input type="password" id="weather-api-key" placeholder="Enter your API key">
+                            <button onclick="saveWeatherSettings()">Save</button>
+                        </div>
+                        
+                        <div class="resort-monitors">
+                            <h4>Monitor These Resorts:</h4>
+                            <div id="resort-checkboxes">
+                                <!-- Will be populated with Vermont resorts -->
+                            </div>
+                        </div>
+                        
+                        <div class="alert-settings">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="enable-alerts" checked>
+                                Enable Weather Alerts
+                            </label>
+                            <div class="threshold-input">
+                                <label>Snow Alert Threshold:</label>
+                                <input type="number" id="snow-threshold" value="6" min="1" max="24"> inches
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="weather-alerts-column">
+                        <h3>Current Alerts</h3>
+                        <div id="alerts-list">
+                            <!-- Weather alerts will appear here -->
+                        </div>
+                        
+                        <h3>Weekend Forecast</h3>
+                        <div id="weekend-forecast">
+                            <!-- Weekend forecasts will appear here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Made for Vermont mountain souls</p>
+        </footer>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Edit Ski Day</h2>
+            <form id="edit-form">
+                <input type="hidden" id="edit-id">
+                <div class="form-group">
+                    <label for="edit-date">Date:</label>
+                    <input type="date" id="edit-date" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-resort">Resort/Mountain:</label>
+                    <input type="text" id="edit-resort" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-conditions">Snow Conditions:</label>
+                    <select id="edit-conditions" required>
+                        <option value="">Select conditions...</option>
+                        <option value="Powder">Fresh Powder</option>
+                        <option value="Packed Powder">Packed Powder</option>
+                        <option value="Groomed">Groomed</option>
+                        <option value="Icy">Icy</option>
+                        <option value="Slushy">Slushy</option>
+                        <option value="Variable">Variable</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-snowfall">New Snow (inches):</label>
+                    <input type="number" id="edit-snowfall" min="0" step="0.5">
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-temperature">Temperature (°F):</label>
+                    <input type="number" id="edit-temperature">
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-weather">Weather:</label>
+                    <select id="edit-weather">
+                        <option value="">Select weather...</option>
+                        <option value="Sunny">Sunny</option>
+                        <option value="Partly Cloudy">Partly Cloudy</option>
+                        <option value="Cloudy">Cloudy</option>
+                        <option value="Snowing">Snowing</option>
+                        <option value="Foggy">Foggy</option>
+                        <option value="Windy">Windy</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-runs">Favorite Runs/Trails:</label>
+                    <input type="text" id="edit-runs">
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-notes">Notes:</label>
+                    <textarea id="edit-notes" rows="3"></textarea>
+                </div>
+                
+                <button type="submit" class="submit-btn">Update Ski Day</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="script-desktop-with-features.js"></script>
+</body>
+</html>

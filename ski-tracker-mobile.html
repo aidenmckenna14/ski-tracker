@@ -29,9 +29,12 @@
         </header>
 
         <div class="tab-container">
-            <button class="tab-button active" onclick="showTab('add')">Add Day</button>
-            <button class="tab-button" onclick="showTab('view')">View Days</button>
+            <button class="tab-button active" onclick="showTab('add')">Add</button>
+            <button class="tab-button" onclick="showTab('view')">Days</button>
             <button class="tab-button" onclick="showTab('stats')">Stats</button>
+            <button class="tab-button" onclick="showTab('goals')">Goals</button>
+            <button class="tab-button" onclick="showTab('pass')">Pass</button>
+            <button class="tab-button" onclick="showTab('weather')">Alerts</button>
         </div>
 
         <div id="add-tab" class="tab-content active">
@@ -127,6 +130,85 @@
             
             <div id="stats-content">
                 <!-- Stats will be displayed here -->
+            </div>
+        </div>
+
+        <div id="goals-tab" class="tab-content">
+            <div class="goals-section">
+                <h3>Season Goals</h3>
+                <div id="goals-list">
+                    <!-- Goals will be displayed here -->
+                </div>
+                <button class="add-goal-btn" onclick="showAddGoalForm()">Set New Goal</button>
+            </div>
+            
+            <div class="achievements-section">
+                <h3>Your Badges</h3>
+                <div id="badges-grid">
+                    <!-- Badges will be displayed here -->
+                </div>
+            </div>
+        </div>
+
+        <div id="pass-tab" class="tab-content">
+            <div class="pass-header">
+                <h3>Bolton Valley Season Pass ROI</h3>
+                <div class="pass-input">
+                    <label>Pass Price: $</label>
+                    <input type="number" id="pass-price" placeholder="599" onchange="updatePassROI()">
+                </div>
+            </div>
+            
+            <div id="pass-stats">
+                <!-- Pass ROI stats will be displayed here -->
+            </div>
+            
+            <div class="pass-breakdown">
+                <h3>Usage by User</h3>
+                <div id="user-pass-stats">
+                    <!-- Individual user stats will be displayed here -->
+                </div>
+            </div>
+        </div>
+
+        <div id="weather-tab" class="tab-content">
+            <div class="weather-settings">
+                <h3>Weather Alerts Setup</h3>
+                <div class="api-key-input">
+                    <label>OpenWeatherMap API Key:</label>
+                    <input type="password" id="weather-api-key" placeholder="Enter your API key">
+                    <button onclick="saveWeatherSettings()">Save</button>
+                </div>
+                
+                <div class="resort-monitors">
+                    <h4>Monitor These Resorts:</h4>
+                    <div id="resort-checkboxes">
+                        <!-- Will be populated with Vermont resorts -->
+                    </div>
+                </div>
+                
+                <div class="alert-settings">
+                    <label>
+                        <input type="checkbox" id="enable-alerts" checked>
+                        Enable Weather Alerts
+                    </label>
+                    <label>
+                        Snow Alert Threshold:
+                        <input type="number" id="snow-threshold" value="6" min="1" max="24"> inches
+                    </label>
+                </div>
+            </div>
+            
+            <div class="weather-alerts">
+                <h3>Current Alerts</h3>
+                <div id="alerts-list">
+                    <!-- Weather alerts will appear here -->
+                </div>
+                
+                <h3>Weekend Forecast</h3>
+                <div id="weekend-forecast">
+                    <!-- Weekend forecasts will appear here -->
+                </div>
             </div>
         </div>
     </div>
