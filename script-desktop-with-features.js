@@ -846,37 +846,65 @@ async function checkWeatherAlerts() {
                 apiCalls.count++;
                 const data = await response.json();
                 
-                // Check for snow in forecast
+                // Check for snow in forecast with enhanced detection
                 let totalSnow = 0;
                 let hasSnow = false;
+                let snowPeriods = 0;
                 
-                data.list.slice(0, 16).forEach(period => { // Next 48 hours
+                console.log(`Checking snow forecast for ${resort.name}...`);
+                
+                data.list.slice(0, 16).forEach((period, index) => { // Next 48 hours
+                    const time = new Date(period.dt * 1000).toLocaleString();
+                    const weather = period.weather[0].main;
+                    const description = period.weather[0].description;
                     let periodSnow = 0;
+                    
+                    if (index < 3) { // Log first few periods for debugging
+                        console.log(`  ${time}: ${weather} - ${description}`);
+                    }
                     
                     if (period.snow && period.snow['3h']) {
                         // API provides snow data
                         periodSnow = period.snow['3h'] / 25.4; // Convert mm to inches
-                    } else if (period.weather[0].main === 'Snow' || 
-                              period.weather[0].description.toLowerCase().includes('snow')) {
-                        // Snow mentioned but no accumulation - estimate light snow
-                        periodSnow = 0.5; // Estimate 0.5" for light snow periods
+                        if (index < 3) {
+                            console.log(`    ❄️ API Snow: ${period.snow['3h']}mm (${periodSnow.toFixed(1)}")`);
+                        }
+                    } else if (weather === 'Snow' || description.toLowerCase().includes('snow')) {
+                        // Snow mentioned but no accumulation data - estimate light snow
+                        const snowKeywords = ['light snow', 'snow showers', 'snow'];
+                        if (snowKeywords.some(keyword => description.toLowerCase().includes(keyword))) {
+                            periodSnow = 0.5; // Estimate 0.5" for light snow periods
+                            if (index < 3) {
+                                console.log(`    ❄️ Estimated Snow (${description}): ${periodSnow}"`);
+                            }
+                        }
                     }
                     
                     if (periodSnow > 0) {
                         totalSnow += periodSnow;
                         hasSnow = true;
+                        snowPeriods++;
                     }
                 });
                 
                 totalSnow = totalSnow.toFixed(1);
+                console.log(`${resort.name} - Total snow forecast: ${totalSnow}" over ${snowPeriods} periods (threshold: ${settings.snowThreshold}")`);
                 
-                if (hasSnow && totalSnow >= settings.snowThreshold) {
+                if (totalSnow > 0 && parseFloat(totalSnow) < settings.snowThreshold) {
+                    console.log(`❄️ Some snow forecast for ${resort.name} but below threshold`);
+                } else if (totalSnow == 0) {
+                    console.log(`No snow forecast for ${resort.name}`);
+                }
+                
+                if (hasSnow && parseFloat(totalSnow) >= settings.snowThreshold) {
                     alerts.push({
                         resort: resort.name,
-                        snow: totalSnow,
+                        amount: totalSnow,
                         temp: data.list[0].main.temp,
-                        conditions: data.list[0].weather[0].description
+                        conditions: data.list[0].weather[0].description,
+                        message: `${resort.name} expecting ${totalSnow}" of snow in next 48 hours!`
                     });
+                    console.log(`🚨 POWDER ALERT: ${resort.name} - ${totalSnow}"!`);
                 }
                 
                 // Weekend forecast
