@@ -672,17 +672,27 @@ window.updatePassROI = function() {
 
 // Weather Alerts
 function initializeWeatherAlerts() {
-    // Checkboxes are now in HTML, just load saved settings
-    const weatherSettings = JSON.parse(localStorage.getItem('weatherSettings')) || {};
+    console.log('Initializing weather alerts...');
     
-    if (weatherSettings.apiKey && document.getElementById('weather-api-key')) {
-        document.getElementById('weather-api-key').value = weatherSettings.apiKey;
+    // Load settings from localStorage
+    const weatherSettings = JSON.parse(localStorage.getItem('weatherSettings')) || {};
+    console.log('Loaded from localStorage:', weatherSettings);
+    
+    const apiKeyEl = document.getElementById('weather-api-key');
+    const enableAlertsEl = document.getElementById('enable-alerts');
+    const snowThresholdEl = document.getElementById('snow-threshold');
+    
+    if (apiKeyEl && weatherSettings.apiKey) {
+        apiKeyEl.value = weatherSettings.apiKey;
+        console.log('Set API key field');
     }
-    if (weatherSettings.enableAlerts !== undefined) {
-        document.getElementById('enable-alerts').checked = weatherSettings.enableAlerts;
+    
+    if (enableAlertsEl) {
+        enableAlertsEl.checked = weatherSettings.enableAlerts !== false; // Default to true
     }
-    if (weatherSettings.snowThreshold) {
-        document.getElementById('snow-threshold').value = weatherSettings.snowThreshold;
+    
+    if (snowThresholdEl) {
+        snowThresholdEl.value = weatherSettings.snowThreshold || 6;
     }
     
     // Update checkbox states based on saved settings
@@ -694,8 +704,11 @@ function initializeWeatherAlerts() {
 }
 
 window.saveWeatherSettings = function() {
+    const apiKey = document.getElementById('weather-api-key').value;
+    console.log('Saving API key:', apiKey ? 'Present' : 'Missing');
+    
     const settings = {
-        apiKey: document.getElementById('weather-api-key').value,
+        apiKey: apiKey,
         enableAlerts: document.getElementById('enable-alerts').checked,
         snowThreshold: parseInt(document.getElementById('snow-threshold').value),
         selectedResorts: Array.from(document.querySelectorAll('#resort-checkboxes input:checked'))
@@ -703,11 +716,13 @@ window.saveWeatherSettings = function() {
     };
     
     localStorage.setItem('weatherSettings', JSON.stringify(settings));
+    console.log('Saved to localStorage:', settings);
     
     // Save to Firebase so everyone can use the same API key
     if (settings.apiKey && typeof firebase !== 'undefined') {
         try {
             firebase.database().ref('weatherSettings').set(settings);
+            console.log('Saved to Firebase successfully');
         } catch (error) {
             console.error('Error saving weather settings to Firebase:', error);
         }
@@ -767,14 +782,24 @@ async function checkWeatherAlerts() {
                 let hasSnow = false;
                 
                 data.list.slice(0, 16).forEach(period => { // Next 48 hours
-                    if (period.weather[0].main === 'Snow' && period.snow) {
-                        totalSnow += period.snow['3h'] || 0;
+                    let periodSnow = 0;
+                    
+                    if (period.snow && period.snow['3h']) {
+                        // API provides snow data
+                        periodSnow = period.snow['3h'] / 25.4; // Convert mm to inches
+                    } else if (period.weather[0].main === 'Snow' || 
+                              period.weather[0].description.toLowerCase().includes('snow')) {
+                        // Snow mentioned but no accumulation - estimate light snow
+                        periodSnow = 0.5; // Estimate 0.5" for light snow periods
+                    }
+                    
+                    if (periodSnow > 0) {
+                        totalSnow += periodSnow;
                         hasSnow = true;
                     }
                 });
                 
-                // Convert to inches (API returns in mm)
-                totalSnow = (totalSnow / 25.4).toFixed(1);
+                totalSnow = totalSnow.toFixed(1);
                 
                 if (hasSnow && totalSnow >= settings.snowThreshold) {
                     alerts.push({

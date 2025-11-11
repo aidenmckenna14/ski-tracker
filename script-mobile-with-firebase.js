@@ -970,15 +970,29 @@ function processWeatherData(resort, data, alerts, forecasts) {
             console.log(`  ${time}: ${weather} - ${description}`);
         }
         
+        // Check both actual snow data and weather descriptions
+        let periodSnow = 0;
+        
         if (forecast.snow && forecast.snow['3h']) {
-            const snowMm = forecast.snow['3h'];
-            const snowInches = snowMm / 25.4;
-            totalSnow += snowInches;
-            snowPeriods++;
-            
+            // API provides snow accumulation data
+            periodSnow = forecast.snow['3h'] / 25.4; // Convert mm to inches
             if (i < 3) {
-                console.log(`    ❄️ Snow: ${snowMm}mm (${snowInches.toFixed(1)}")`);
+                console.log(`    ❄️ API Snow: ${forecast.snow['3h']}mm (${periodSnow.toFixed(1)}")`);
             }
+        } else if (weather === 'Snow' || description.toLowerCase().includes('snow')) {
+            // Snow mentioned but no accumulation data - estimate light snow
+            const snowKeywords = ['light snow', 'snow showers', 'snow'];
+            if (snowKeywords.some(keyword => description.toLowerCase().includes(keyword))) {
+                periodSnow = 0.5; // Estimate 0.5" for light snow periods
+                if (i < 3) {
+                    console.log(`    ❄️ Estimated Snow (${description}): ${periodSnow}"`);
+                }
+            }
+        }
+        
+        if (periodSnow > 0) {
+            totalSnow += periodSnow;
+            snowPeriods++;
         }
     }
     
