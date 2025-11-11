@@ -804,12 +804,12 @@ async function checkWeatherAlerts() {
     console.log('✅ Starting weather API calls...');
     
     const today = new Date().toDateString();
-    const cachedData = JSON.parse(localStorage.getItem('weatherCache')) || {};
     
-    console.log('Cached data:', cachedData);
+    // Clear cache for debugging
+    localStorage.removeItem('weatherCache');
+    console.log('DEBUGGING: Cleared cache, forcing fresh API calls');
     
-    // Temporarily disable cache for debugging - force fresh API calls
-    console.log('DEBUGGING: Forcing fresh API calls (cache temporarily disabled)');
+    const cachedData = {};
     
     // Check if we have recent data (within 6 hours) - DISABLED FOR DEBUGGING
     if (false && cachedData.date === today && cachedData.timestamp && 
@@ -966,49 +966,17 @@ async function checkWeatherAlerts() {
 }
 
 function displayWeatherAlerts(data = {}) {
-    console.log('Display weather alerts called');
+    console.log('=== DISPLAY WEATHER ALERTS CALLED ===');
+    console.log('Data received:', data);
+    console.log('Has alerts:', data?.alerts?.length || 0);
+    console.log('Has forecasts:', data?.forecasts?.length || 0);
     
-    // If no data provided, reload settings and check for fresh data
+    // If no data provided, just show placeholders and return - don't recursively call checkWeatherAlerts
     if (!data || (!data.alerts && !data.forecasts)) {
-        console.log('No data provided, reloading settings and checking weather...');
-        
-        // Reload settings from localStorage
-        const settings = JSON.parse(localStorage.getItem('weatherSettings')) || {};
-        console.log('Reloaded settings:', settings);
-        
-        // Update form fields
-        const apiKeyEl = document.getElementById('weather-api-key');
-        if (apiKeyEl && settings.apiKey) {
-            apiKeyEl.value = settings.apiKey;
-            console.log('Restored API key to field');
-        }
-        
-        if (document.getElementById('enable-alerts')) {
-            document.getElementById('enable-alerts').checked = settings.enableAlerts !== false;
-        }
-        
-        if (document.getElementById('snow-threshold')) {
-            document.getElementById('snow-threshold').value = settings.snowThreshold || 6;
-        }
-        
-        // Update checkboxes
-        if (settings.selectedResorts) {
-            document.querySelectorAll('#resort-checkboxes input[type="checkbox"]').forEach(cb => {
-                cb.checked = settings.selectedResorts.includes(cb.value);
-            });
-        }
-        
-        // Trigger weather check if we have an API key
-        if (settings.apiKey && settings.enableAlerts) {
-            console.log('Triggering weather check...');
-            checkWeatherAlerts();
-            return;
-        } else {
-            console.log('No API key or alerts disabled, showing placeholder');
-            document.getElementById('alerts-list').innerHTML = '<p>Enter your API key and enable alerts to see weather forecasts</p>';
-            document.getElementById('weekend-forecast').innerHTML = '<p>Configure weather settings to see weekend forecasts</p>';
-            return;
-        }
+        console.log('No weather data provided to display function');
+        document.getElementById('alerts-list').innerHTML = '<p>Loading weather alerts...</p>';
+        document.getElementById('weekend-forecast').innerHTML = '<p>Loading weekend forecast...</p>';
+        return;
     }
     
     // Display provided data
