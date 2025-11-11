@@ -51,8 +51,7 @@ window.showTab = function(tab) {
     } else if (tab === 'pass') {
         updatePassROI();
     } else if (tab === 'weather') {
-        // Add small delay to ensure DOM elements are ready
-        setTimeout(loadWeatherTab, 100);
+        loadWeatherTab();
     }
 }
 
@@ -859,19 +858,13 @@ function loadWeatherTab() {
         snowThresholdEl.value = weatherSettings.snowThreshold;
     }
     
-    // Create resort checkboxes
+    // Checkboxes are now in HTML, just update their state based on saved settings
     if (checkboxContainer) {
-        console.log('Creating checkboxes for', newEnglandResorts.length, 'resorts');
-        checkboxContainer.innerHTML = newEnglandResorts.map(resort => `
-            <label class="resort-checkbox">
-                <input type="checkbox" value="${resort.name}" 
-                    ${weatherSettings.monitoredResorts.includes(resort.name) ? 'checked' : ''}>
-                ${resort.name}
-            </label>
-        `).join('');
-        console.log('Checkboxes created');
-    } else {
-        console.error('Checkbox container not found');
+        const checkboxes = checkboxContainer.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(cb => {
+            cb.checked = weatherSettings.monitoredResorts.includes(cb.value);
+        });
+        console.log('Updated checkbox states for saved settings');
     }
     
     // Check for alerts if API key exists
