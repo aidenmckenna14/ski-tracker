@@ -1,0 +1,317 @@
+/* Vermont Mobile Theme */
+:root {
+    --sage-green: #8BC34A;
+    --forest-green: #2E7D32;
+    --pine-green: #1B5E20;
+    --moss-green: #689F38;
+    --earth-brown: #5D4037;
+    --warm-beige: #D7CCC8;
+    --sky-blue: #81C784;
+    --mountain-purple: #7E57C2;
+    --sunset-orange: #FF7043;
+    --shadow-gray: #37474F;
+    --warning-red: #D32F2F;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+    background: linear-gradient(135deg, var(--sage-green) 0%, var(--sky-blue) 50%, var(--warm-beige) 100%);
+    min-height: 100vh;
+    color: var(--earth-brown);
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+.container {
+    max-width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    background: linear-gradient(135deg, rgba(139, 195, 74, 0.4), rgba(129, 199, 132, 0.4));
+    backdrop-filter: blur(10px);
+    padding: 20px 15px 15px;
+    text-align: center;
+    border-bottom: 3px solid var(--moss-green);
+}
+
+h1 {
+    font-family: 'Galaxy BT', Georgia, serif;
+    color: var(--pine-green);
+    font-size: 1.8em;
+    margin-bottom: 10px;
+}
+
+.user-select-container {
+    margin-top: 10px;
+}
+
+.user-select {
+    width: 150px;
+    padding: 8px 15px;
+    border: 2px solid var(--forest-green);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--pine-green);
+    font-size: 1em;
+    font-weight: bold;
+}
+
+/* Tabs */
+.tab-container {
+    display: flex;
+    background: rgba(255, 255, 255, 0.8);
+    border-bottom: 2px solid var(--sage-green);
+}
+
+.tab-button {
+    flex: 1;
+    padding: 15px;
+    background: none;
+    border: none;
+    color: var(--forest-green);
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.tab-button.active {
+    background: var(--sage-green);
+    color: white;
+}
+
+.tab-content {
+    display: none;
+    flex: 1;
+    padding: 20px 15px;
+    overflow-y: auto;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Form */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-row {
+    display: flex;
+    gap: 10px;
+}
+
+.form-group.half {
+    flex: 1;
+}
+
+label {
+    display: block;
+    color: var(--pine-green);
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 0.95em;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid var(--sage-green);
+    border-radius: 10px;
+    font-size: 16px;
+    background: rgba(255, 255, 255, 0.9);
+    -webkit-appearance: none;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--forest-green);
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, var(--forest-green), var(--moss-green));
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 1.1em;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 20px;
+    cursor: pointer;
+}
+
+/* Stats */
+.stats-container {
+    display: flex;
+    justify-content: space-around;
+    padding: 20px;
+    background: linear-gradient(135deg, var(--sage-green), var(--sky-blue));
+    border-radius: 15px;
+    margin-bottom: 20px;
+}
+
+.stat {
+    text-align: center;
+}
+
+.stat-value {
+    display: block;
+    color: white;
+    font-size: 2em;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.stat-label {
+    color: var(--earth-brown);
+    font-size: 0.9em;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 5px;
+}
+
+/* Day Cards */
+.ski-day-card {
+    background: linear-gradient(145deg, rgba(129, 199, 132, 0.3), rgba(215, 204, 200, 0.7));
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 15px;
+    border-left: 4px solid var(--forest-green);
+}
+
+.ski-day-card h3 {
+    color: var(--pine-green);
+    font-size: 1.1em;
+    margin-bottom: 10px;
+    padding-right: 70px;
+}
+
+.day-details {
+    font-size: 0.9em;
+    color: var(--earth-brown);
+}
+
+.detail-item {
+    margin: 5px 0;
+}
+
+.detail-label {
+    color: var(--forest-green);
+    font-weight: bold;
+}
+
+.card-buttons {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 8px;
+}
+
+.edit-btn, .delete-btn {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 15px;
+    color: white;
+    font-size: 0.8em;
+}
+
+.edit-btn {
+    background: var(--moss-green);
+}
+
+.delete-btn {
+    background: var(--warning-red);
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    overflow-y: auto;
+}
+
+.modal-content {
+    background: var(--warm-beige);
+    margin: 5% auto;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.modal-header {
+    background: linear-gradient(135deg, var(--forest-green), var(--moss-green));
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h2 {
+    font-size: 1.3em;
+    margin: 0;
+}
+
+.close {
+    font-size: 24px;
+    cursor: pointer;
+}
+
+#edit-form {
+    padding: 20px;
+}
+
+/* Feedback */
+.feedback {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--forest-green);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    z-index: 2000;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translate(-50%, -100%);
+        opacity: 0;
+    }
+    to {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+}
+
+/* iOS specific */
+@supports (-webkit-touch-callout: none) {
+    input[type="date"],
+    input[type="number"],
+    select {
+        font-size: 16px;
+    }
+}

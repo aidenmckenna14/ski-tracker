@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="VT Ski Tracker">
+    <title>Vermont Ski Tracker</title>
+    <link rel="stylesheet" href="styles-mobile.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="802.jpg">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Vermont Ski Tracker</h1>
+            <div class="user-select-container">
+                <select id="user-select" class="user-select">
+                    <option value="aiden">Aiden</option>
+                    <option value="jack">Jack</option>
+                    <option value="matt">Matt</option>
+                    <option value="mike">Mike</option>
+                    <option value="reece">Reece</option>
+                </select>
+            </div>
+        </header>
+
+        <div class="tab-container">
+            <button class="tab-button active" onclick="showTab('add')">Add Day</button>
+            <button class="tab-button" onclick="showTab('view')">View Days</button>
+        </div>
+
+        <div id="add-tab" class="tab-content active">
+            <form id="ski-day-form">
+                <div class="form-group">
+                    <label for="date">Date</label>
+                    <input type="date" id="date" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="resort">Resort</label>
+                    <input type="text" id="resort" placeholder="Stowe, Killington..." required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="conditions">Conditions</label>
+                    <select id="conditions" required>
+                        <option value="">Select...</option>
+                        <option value="Powder">Fresh Powder</option>
+                        <option value="Packed Powder">Packed Powder</option>
+                        <option value="Groomed">Groomed</option>
+                        <option value="Icy">Icy</option>
+                        <option value="Slushy">Slushy</option>
+                        <option value="Variable">Variable</option>
+                    </select>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label for="snowfall">New Snow"</label>
+                        <input type="number" id="snowfall" min="0" step="0.5" placeholder="0">
+                    </div>
+                    
+                    <div class="form-group half">
+                        <label for="temperature">Temp °F</label>
+                        <input type="number" id="temperature" placeholder="25">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="weather">Weather</label>
+                    <select id="weather">
+                        <option value="">Select...</option>
+                        <option value="Sunny">Sunny</option>
+                        <option value="Partly Cloudy">Partly Cloudy</option>
+                        <option value="Cloudy">Cloudy</option>
+                        <option value="Snowing">Snowing</option>
+                        <option value="Foggy">Foggy</option>
+                        <option value="Windy">Windy</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="runs">Favorite Runs</label>
+                    <input type="text" id="runs" placeholder="Goat, Chin Clip...">
+                </div>
+                
+                <div class="form-group">
+                    <label for="notes">Notes</label>
+                    <textarea id="notes" rows="3" placeholder="How was the day?"></textarea>
+                </div>
+                
+                <button type="submit" class="submit-btn">Add Ski Day</button>
+            </form>
+        </div>
+
+        <div id="view-tab" class="tab-content">
+            <div class="stats-container">
+                <div class="stat">
+                    <span class="stat-value" id="total-days">0</span>
+                    <span class="stat-label">Days</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value" id="total-snow">0"</span>
+                    <span class="stat-label">Total Snow</span>
+                </div>
+            </div>
+            
+            <div id="days-list" class="days-list">
+                <!-- Ski days will be added here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Ski Day</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="edit-form">
+                <input type="hidden" id="edit-id">
+                <div class="form-group">
+                    <label for="edit-date">Date</label>
+                    <input type="date" id="edit-date" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-resort">Resort</label>
+                    <input type="text" id="edit-resort" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-conditions">Conditions</label>
+                    <select id="edit-conditions" required>
+                        <option value="">Select...</option>
+                        <option value="Powder">Fresh Powder</option>
+                        <option value="Packed Powder">Packed Powder</option>
+                        <option value="Groomed">Groomed</option>
+                        <option value="Icy">Icy</option>
+                        <option value="Slushy">Slushy</option>
+                        <option value="Variable">Variable</option>
+                    </select>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label for="edit-snowfall">New Snow"</label>
+                        <input type="number" id="edit-snowfall" min="0" step="0.5">
+                    </div>
+                    
+                    <div class="form-group half">
+                        <label for="edit-temperature">Temp °F</label>
+                        <input type="number" id="edit-temperature">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-weather">Weather</label>
+                    <select id="edit-weather">
+                        <option value="">Select...</option>
+                        <option value="Sunny">Sunny</option>
+                        <option value="Partly Cloudy">Partly Cloudy</option>
+                        <option value="Cloudy">Cloudy</option>
+                        <option value="Snowing">Snowing</option>
+                        <option value="Foggy">Foggy</option>
+                        <option value="Windy">Windy</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-runs">Favorite Runs</label>
+                    <input type="text" id="edit-runs">
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-notes">Notes</label>
+                    <textarea id="edit-notes" rows="3"></textarea>
+                </div>
+                
+                <button type="submit" class="submit-btn">Update</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script-mobile.js"></script>
+</body>
+</html>

@@ -1,0 +1,391 @@
+/* Vermont Hippy Winter Theme */
+:root {
+    --snow-white: #FAFAFA;
+    --sage-green: #8BC34A;
+    --forest-green: #2E7D32;
+    --pine-green: #1B5E20;
+    --moss-green: #689F38;
+    --earth-brown: #5D4037;
+    --warm-beige: #D7CCC8;
+    --sky-blue: #81C784;
+    --mountain-purple: #7E57C2;
+    --sunset-orange: #FF7043;
+    --shadow-gray: #37474F;
+    --warning-red: #D32F2F;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, var(--sage-green) 0%, var(--sky-blue) 50%, var(--warm-beige) 100%);
+    min-height: 100vh;
+    color: var(--earth-brown);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 30px 0;
+    background: linear-gradient(135deg, rgba(139, 195, 74, 0.3), rgba(129, 199, 132, 0.3));
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: 2px solid var(--moss-green);
+}
+
+h1 {
+    font-family: 'Galaxy BT', 'Georgia', serif;
+    color: var(--pine-green);
+    font-size: 3em;
+    margin-bottom: 10px;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2);
+    letter-spacing: 2px;
+}
+
+.tagline {
+    color: var(--forest-green);
+    font-style: italic;
+    font-size: 1.1em;
+}
+
+main {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.add-day, .ski-days {
+    background: linear-gradient(145deg, rgba(215, 204, 200, 0.9), rgba(139, 195, 74, 0.2));
+    backdrop-filter: blur(5px);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--sage-green);
+}
+
+h2 {
+    font-family: 'Galaxy BT', 'Georgia', serif;
+    color: var(--forest-green);
+    margin-bottom: 20px;
+    border-bottom: 3px solid var(--moss-green);
+    padding-bottom: 10px;
+    font-size: 1.8em;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    color: var(--pine-green);
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 0.95em;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid var(--sage-green);
+    border-radius: 12px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+    background: rgba(255, 255, 255, 0.7);
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--forest-green);
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.submit-btn {
+    background: linear-gradient(135deg, var(--forest-green), var(--moss-green));
+    color: white;
+    padding: 14px 30px;
+    border: none;
+    border-radius: 25px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 20px;
+    transition: all 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.submit-btn:hover {
+    background: linear-gradient(135deg, var(--pine-green), var(--forest-green));
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+}
+
+.stats {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+    padding: 20px;
+    background: linear-gradient(135deg, var(--sage-green), var(--sky-blue));
+    border-radius: 15px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-label {
+    display: block;
+    color: var(--earth-brown);
+    font-size: 0.9em;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.stat-value {
+    display: block;
+    color: var(--snow-white);
+    font-size: 1.8em;
+    font-weight: bold;
+    margin-top: 5px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.days-list {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.ski-day-card {
+    background: linear-gradient(145deg, rgba(129, 199, 132, 0.3), rgba(215, 204, 200, 0.5));
+    padding: 20px;
+    margin-bottom: 15px;
+    border-radius: 15px;
+    border-left: 5px solid var(--forest-green);
+    border-right: 2px solid var(--sage-green);
+    position: relative;
+    transition: all 0.3s;
+}
+
+.ski-day-card h3 {
+    color: var(--pine-green);
+    margin-bottom: 10px;
+    font-family: 'Galaxy BT', 'Georgia', serif;
+}
+
+.day-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.detail-item {
+    font-size: 0.9em;
+}
+
+.detail-label {
+    color: var(--forest-green);
+    font-weight: bold;
+}
+
+.card-buttons {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 8px;
+}
+
+.edit-btn, .delete-btn {
+    color: white;
+    border: none;
+    padding: 5px 12px;
+    border-radius: 15px;
+    cursor: pointer;
+    font-size: 0.8em;
+    transition: all 0.3s;
+}
+
+.edit-btn {
+    background: var(--moss-green);
+}
+
+.edit-btn:hover {
+    background: var(--forest-green);
+    transform: translateY(-1px);
+}
+
+.delete-btn {
+    background: var(--warning-red);
+}
+
+.delete-btn:hover {
+    background: #B71C1C;
+    transform: translateY(-1px);
+}
+
+footer {
+    text-align: center;
+    color: var(--pine-green);
+    padding: 20px;
+    font-size: 1.1em;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    main {
+        grid-template-columns: 1fr;
+    }
+    
+    h1 {
+        font-size: 2em;
+    }
+    
+    .day-details {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Scrollbar styling for ski days list */
+.days-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.days-list::-webkit-scrollbar-track {
+    background: var(--warm-beige);
+    border-radius: 4px;
+}
+
+.days-list::-webkit-scrollbar-thumb {
+    background: var(--moss-green);
+    border-radius: 4px;
+}
+
+.days-list::-webkit-scrollbar-thumb:hover {
+    background: var(--forest-green);
+}
+
+/* Hover effects */
+.ski-day-card:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* User menu styles */
+.user-menu {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.user-menu label {
+    color: var(--pine-green);
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.user-menu select {
+    padding: 8px 15px;
+    border: 2px solid var(--forest-green);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.8);
+    color: var(--pine-green);
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Section header with images */
+.section-header {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.header-image {
+    position: absolute;
+    top: -15px;
+    right: 0;
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid var(--sage-green);
+    opacity: 0.8;
+}
+
+/* Modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(3px);
+}
+
+.modal-content {
+    background: linear-gradient(145deg, var(--warm-beige), rgba(139, 195, 74, 0.3));
+    margin: 5% auto;
+    padding: 30px;
+    border: 3px solid var(--forest-green);
+    width: 90%;
+    max-width: 600px;
+    border-radius: 20px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+.modal-content h2 {
+    color: var(--pine-green);
+    font-family: 'Galaxy BT', 'Georgia', serif;
+    margin-bottom: 25px;
+    text-align: center;
+    font-size: 2em;
+}
+
+.close {
+    color: var(--forest-green);
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.close:hover,
+.close:focus {
+    color: var(--pine-green);
+}
+
+/* Form in modal has same styling as main form */
+#edit-form .form-group {
+    margin-bottom: 15px;
+}
+
+#edit-form input,
+#edit-form select,
+#edit-form textarea {
+    background: rgba(255, 255, 255, 0.8);
+}

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New England Ski Day Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>New England Ski Day Tracker</h1>
+            <p class="tagline">Track your Vermont & New England ski adventures</p>
+            <div class="user-menu">
+                <label for="user-select">Current Skier:</label>
+                <select id="user-select">
+                    <option value="aiden">Aiden</option>
+                    <option value="jack">Jack</option>
+                    <option value="matt">Matt</option>
+                    <option value="mike">Mike</option>
+                    <option value="reece">Reece</option>
+                </select>
+            </div>
+        </header>
+
+        <main>
+            <section class="add-day">
+                <div class="section-header">
+                    <h2>Add New Ski Day</h2>
+                    <img src="Steely.webp" alt="Ski slopes" class="header-image">
+                </div>
+                <form id="ski-day-form">
+                    <div class="form-group">
+                        <label for="date">Date:</label>
+                        <input type="date" id="date" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="resort">Resort/Mountain:</label>
+                        <input type="text" id="resort" placeholder="e.g., Stowe, Killington, Jay Peak" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="conditions">Snow Conditions:</label>
+                        <select id="conditions" required>
+                            <option value="">Select conditions...</option>
+                            <option value="Powder">Fresh Powder</option>
+                            <option value="Packed Powder">Packed Powder</option>
+                            <option value="Groomed">Groomed</option>
+                            <option value="Icy">Icy</option>
+                            <option value="Slushy">Slushy</option>
+                            <option value="Variable">Variable</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="snowfall">New Snow (inches):</label>
+                        <input type="number" id="snowfall" min="0" step="0.5" placeholder="0">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="temperature">Temperature (°F):</label>
+                        <input type="number" id="temperature" placeholder="25">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="weather">Weather:</label>
+                        <select id="weather">
+                            <option value="">Select weather...</option>
+                            <option value="Sunny">Sunny</option>
+                            <option value="Partly Cloudy">Partly Cloudy</option>
+                            <option value="Cloudy">Cloudy</option>
+                            <option value="Snowing">Snowing</option>
+                            <option value="Foggy">Foggy</option>
+                            <option value="Windy">Windy</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="runs">Favorite Runs/Trails:</label>
+                        <input type="text" id="runs" placeholder="e.g., Goat, Chin Clip, Paradise">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="notes">Notes:</label>
+                        <textarea id="notes" rows="3" placeholder="How was the day? Any highlights?"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">Add Ski Day</button>
+                </form>
+            </section>
+
+            <section class="ski-days">
+                <div class="section-header">
+                    <h2>Your Ski Days</h2>
+                    <img src="802.jpg" alt="Vermont mountains" class="header-image">
+                </div>
+                <div class="stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Total Days:</span>
+                        <span class="stat-value" id="total-days">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Season Total Snow:</span>
+                        <span class="stat-value" id="total-snow">0"</span>
+                    </div>
+                </div>
+                <div id="days-list" class="days-list">
+                    <!-- Ski days will be dynamically added here -->
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Made for Vermont mountain souls</p>
+        </footer>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Edit Ski Day</h2>
+            <form id="edit-form">
+                <input type="hidden" id="edit-id">
+                <div class="form-group">
+                    <label for="edit-date">Date:</label>
+                    <input type="date" id="edit-date" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-resort">Resort/Mountain:</label>
+                    <input type="text" id="edit-resort" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-conditions">Snow Conditions:</label>
+                    <select id="edit-conditions" required>
+                        <option value="">Select conditions...</option>
+                        <option value="Powder">Fresh Powder</option>
+                        <option value="Packed Powder">Packed Powder</option>
+                        <option value="Groomed">Groomed</option>
+                        <option value="Icy">Icy</option>
+                        <option value="Slushy">Slushy</option>
+                        <option value="Variable">Variable</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-snowfall">New Snow (inches):</label>
+                    <input type="number" id="edit-snowfall" min="0" step="0.5">
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-temperature">Temperature (°F):</label>
+                    <input type="number" id="edit-temperature">
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-weather">Weather:</label>
+                    <select id="edit-weather">
+                        <option value="">Select weather...</option>
+                        <option value="Sunny">Sunny</option>
+                        <option value="Partly Cloudy">Partly Cloudy</option>
+                        <option value="Cloudy">Cloudy</option>
+                        <option value="Snowing">Snowing</option>
+                        <option value="Foggy">Foggy</option>
+                        <option value="Windy">Windy</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-runs">Favorite Runs/Trails:</label>
+                    <input type="text" id="edit-runs">
+                </div>
+                
+                <div class="form-group">
+                    <label for="edit-notes">Notes:</label>
+                    <textarea id="edit-notes" rows="3"></textarea>
+                </div>
+                
+                <button type="submit" class="submit-btn">Update Ski Day</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
