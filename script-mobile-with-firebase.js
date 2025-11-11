@@ -868,18 +868,30 @@ function loadWeatherTab() {
     }
     
     // Check for alerts if API key exists
-    if (weatherSettings.apiKey) {
+    if (weatherSettings.apiKey && weatherSettings.enableAlerts) {
+        console.log('Starting weather check...');
         checkWeatherAlerts();
     } else {
         const alertsList = document.getElementById('alerts-list');
         if (alertsList) {
-            alertsList.innerHTML = '<p>Enter your API key to see weather alerts</p>';
+            if (!weatherSettings.apiKey) {
+                alertsList.innerHTML = '<p>Enter your API key to see weather alerts</p>';
+            } else if (!weatherSettings.enableAlerts) {
+                alertsList.innerHTML = '<p>Enable weather alerts to see forecasts</p>';
+            }
         }
     }
 }
 
 async function checkWeatherAlerts() {
-    if (!weatherSettings.apiKey || !weatherSettings.enableAlerts) return;
+    console.log('Checking weather alerts...');
+    console.log('API Key exists:', !!weatherSettings.apiKey);
+    console.log('Alerts enabled:', weatherSettings.enableAlerts);
+    
+    if (!weatherSettings.apiKey || !weatherSettings.enableAlerts) {
+        document.getElementById('alerts-list').innerHTML = '<p>Enter API key and enable alerts to see weather data</p>';
+        return;
+    }
     
     if (dailyApiCalls >= MAX_DAILY_CALLS) {
         console.log('API call limit reached for today');
@@ -890,9 +902,16 @@ async function checkWeatherAlerts() {
     const alerts = [];
     const forecasts = [];
     
+    console.log('Monitoring', weatherSettings.monitoredResorts.length, 'resorts');
+    
     for (const resortName of weatherSettings.monitoredResorts) {
         const resort = newEnglandResorts.find(r => r.name === resortName);
-        if (!resort) continue;
+        if (!resort) {
+            console.log('Resort not found in data:', resortName);
+            continue;
+        }
+        
+        console.log('Checking weather for', resort.name);
         
         // Check cache first
         const cacheKey = `${resort.name}_${new Date().toDateString()}`;
@@ -936,24 +955,47 @@ async function checkWeatherAlerts() {
 
 function processWeatherData(resort, data, alerts, forecasts) {
     let totalSnow = 0;
-    let hasSnowAlert = false;
+    let snowPeriods = 0;
+    
+    console.log(`Processing weather data for ${resort.name}...`);
     
     // Check next 48 hours for snow
     for (let i = 0; i < Math.min(16, data.list.length); i++) { // 16 * 3 hours = 48 hours
         const forecast = data.list[i];
+        const time = new Date(forecast.dt * 1000).toLocaleString();
+        const weather = forecast.weather[0].main;
+        const description = forecast.weather[0].description;
+        
+        if (i < 3) { // Log first few periods
+            console.log(`  ${time}: ${weather} - ${description}`);
+        }
+        
         if (forecast.snow && forecast.snow['3h']) {
-            // Convert mm to inches (25.4mm = 1 inch)
-            totalSnow += forecast.snow['3h'] / 25.4;
+            const snowMm = forecast.snow['3h'];
+            const snowInches = snowMm / 25.4;
+            totalSnow += snowInches;
+            snowPeriods++;
+            
+            if (i < 3) {
+                console.log(`    ❄️ Snow: ${snowMm}mm (${snowInches.toFixed(1)}")`);
+            }
         }
     }
+    
+    console.log(`${resort.name} - Total snow forecast: ${totalSnow.toFixed(1)}" over ${snowPeriods} periods (threshold: ${weatherSettings.snowThreshold}")`);
     
     if (totalSnow >= weatherSettings.snowThreshold) {
         alerts.push({
             resort: resort.name,
             type: 'snow',
-            amount: Math.round(totalSnow),
-            message: `${resort.name} expecting ${Math.round(totalSnow)}" of snow in next 48 hours!`
+            amount: totalSnow.toFixed(1),
+            message: `${resort.name} expecting ${totalSnow.toFixed(1)}" of snow in next 48 hours!`
         });
+        console.log(`🚨 POWDER ALERT: ${resort.name}!`);
+    } else if (totalSnow > 0) {
+        console.log(`❄️ Some snow forecast for ${resort.name} but below threshold`);
+    } else {
+        console.log(`No snow forecast for ${resort.name}`);
     }
     
     // Get weekend forecast

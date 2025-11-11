@@ -672,18 +672,10 @@ window.updatePassROI = function() {
 
 // Weather Alerts
 function initializeWeatherAlerts() {
-    // Create resort checkboxes
-    const checkboxesContainer = document.getElementById('resort-checkboxes');
-    checkboxesContainer.innerHTML = newEnglandResorts.map(resort => `
-        <label class="resort-checkbox">
-            <input type="checkbox" value="${resort.name}" checked>
-            ${resort.name}
-        </label>
-    `).join('');
-    
-    // Load saved settings
+    // Checkboxes are now in HTML, just load saved settings
     const weatherSettings = JSON.parse(localStorage.getItem('weatherSettings')) || {};
-    if (weatherSettings.apiKey) {
+    
+    if (weatherSettings.apiKey && document.getElementById('weather-api-key')) {
         document.getElementById('weather-api-key').value = weatherSettings.apiKey;
     }
     if (weatherSettings.enableAlerts !== undefined) {
@@ -691,6 +683,13 @@ function initializeWeatherAlerts() {
     }
     if (weatherSettings.snowThreshold) {
         document.getElementById('snow-threshold').value = weatherSettings.snowThreshold;
+    }
+    
+    // Update checkbox states based on saved settings
+    if (weatherSettings.selectedResorts) {
+        document.querySelectorAll('#resort-checkboxes input[type="checkbox"]').forEach(cb => {
+            cb.checked = weatherSettings.selectedResorts.includes(cb.value);
+        });
     }
 }
 
