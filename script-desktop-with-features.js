@@ -71,7 +71,14 @@ window.showSection = function(section) {
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
     
     document.getElementById(section + '-section').classList.add('active');
-    event.target.classList.add('active');
+    
+    // Find and activate the correct nav button
+    const navButtons = document.querySelectorAll('.nav-btn');
+    const sectionNames = ['add', 'view', 'stats', 'goals', 'pass', 'weather'];
+    const sectionIndex = sectionNames.indexOf(section);
+    if (sectionIndex >= 0 && navButtons[sectionIndex]) {
+        navButtons[sectionIndex].classList.add('active');
+    }
     
     if (section === 'stats') {
         updateStatsView();
@@ -704,40 +711,97 @@ function initializeWeatherAlerts() {
 }
 
 window.saveWeatherSettings = function() {
-    const apiKey = document.getElementById('weather-api-key').value;
-    console.log('Saving API key:', apiKey ? 'Present' : 'Missing');
+    console.log('=== SAVE WEATHER SETTINGS CALLED ===');
+    
+    const apiKeyEl = document.getElementById('weather-api-key');
+    const enableAlertsEl = document.getElementById('enable-alerts');
+    const snowThresholdEl = document.getElementById('snow-threshold');
+    
+    console.log('API Key Element:', apiKeyEl);
+    console.log('Enable Alerts Element:', enableAlertsEl);
+    console.log('Snow Threshold Element:', snowThresholdEl);
+    
+    if (!apiKeyEl) {
+        console.error('API Key element not found!');
+        return;
+    }
+    
+    const apiKey = apiKeyEl.value;
+    console.log('API Key Value:', apiKey);
+    console.log('API Key Length:', apiKey.length);
+    
+    if (!apiKey || apiKey.trim() === '') {
+        showFeedback('Please enter an API key');
+        return;
+    }
     
     const settings = {
-        apiKey: apiKey,
-        enableAlerts: document.getElementById('enable-alerts').checked,
-        snowThreshold: parseInt(document.getElementById('snow-threshold').value),
+        apiKey: apiKey.trim(),
+        enableAlerts: enableAlertsEl ? enableAlertsEl.checked : true,
+        snowThreshold: snowThresholdEl ? parseInt(snowThresholdEl.value) || 6 : 6,
         selectedResorts: Array.from(document.querySelectorAll('#resort-checkboxes input:checked'))
             .map(cb => cb.value)
     };
     
-    localStorage.setItem('weatherSettings', JSON.stringify(settings));
-    console.log('Saved to localStorage:', settings);
+    console.log('Settings to save:', JSON.stringify(settings, null, 2));
     
-    // Save to Firebase so everyone can use the same API key
-    if (settings.apiKey && typeof firebase !== 'undefined') {
-        try {
-            firebase.database().ref('weatherSettings').set(settings);
-            console.log('Saved to Firebase successfully');
-        } catch (error) {
-            console.error('Error saving weather settings to Firebase:', error);
-        }
+    try {
+        localStorage.setItem('weatherSettings', JSON.stringify(settings));
+        console.log('✅ Saved to localStorage successfully');
+        
+        // Verify it was saved
+        const saved = JSON.parse(localStorage.getItem('weatherSettings'));
+        console.log('✅ Verified in localStorage:', saved);
+    } catch (error) {
+        console.error('❌ Error saving to localStorage:', error);
+        return;
     }
     
-    showFeedback('Weather settings saved for everyone!');
+    // Save to Firebase
+    if (typeof firebase !== 'undefined') {
+        try {
+            firebase.database().ref('weatherSettings').set(settings);
+            console.log('✅ Saved to Firebase successfully');
+        } catch (error) {
+            console.error('❌ Error saving weather settings to Firebase:', error);
+        }
+    } else {
+        console.log('⚠️ Firebase not available');
+    }
+    
+    showFeedback('Weather settings saved!');
+    
+    console.log('Checking if should trigger weather check...');
+    console.log('Has API key:', !!settings.apiKey);
+    console.log('Alerts enabled:', settings.enableAlerts);
     
     if (settings.apiKey && settings.enableAlerts) {
+        console.log('🚀 Triggering weather check...');
         checkWeatherAlerts();
+    } else {
+        console.log('❌ Not triggering weather check - missing API key or alerts disabled');
     }
 }
 
 async function checkWeatherAlerts() {
+    console.log('=== CHECK WEATHER ALERTS CALLED ===');
+    
     const settings = JSON.parse(localStorage.getItem('weatherSettings')) || {};
-    if (!settings.apiKey || !settings.enableAlerts) return;
+    console.log('Loaded settings for weather check:', settings);
+    
+    if (!settings.apiKey) {
+        console.log('❌ No API key found');
+        document.getElementById('alerts-list').innerHTML = '<p>No API key found. Please save your settings first.</p>';
+        return;
+    }
+    
+    if (!settings.enableAlerts) {
+        console.log('❌ Alerts disabled');
+        document.getElementById('alerts-list').innerHTML = '<p>Weather alerts are disabled.</p>';
+        return;
+    }
+    
+    console.log('✅ Starting weather API calls...');
     
     const today = new Date().toDateString();
     const cachedData = JSON.parse(localStorage.getItem('weatherCache')) || {};
@@ -912,7 +976,7 @@ function displayWeatherAlerts(data = {}) {
         <div class="forecast-card">
             <div class="forecast-header">
                 <h4>${forecast.resort}</h4>
-                <span>${forecast.date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
+                <span>${typeof forecast.date === 'string' ? forecast.date : new Date(forecast.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
             </div>
             <div class="forecast-details">
                 <div class="forecast-item">
