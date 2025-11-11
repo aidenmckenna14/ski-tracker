@@ -2,15 +2,15 @@
   "name": "Vermont Ski Tracker",
   "short_name": "VT Ski",
   "description": "Track your Vermont ski adventures",
-  "start_url": "./ski-tracker-mobile.html",
-  "scope": "./",
+  "start_url": "ski-tracker-mobile.html",
+  "scope": "/ski-tracker/",
   "display": "standalone",
   "background_color": "#8BC34A",
   "theme_color": "#1B5E20",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "./802.jpg",
+      "src": "802.jpg",
       "sizes": "512x512",
       "type": "image/jpeg",
       "purpose": "any maskable"

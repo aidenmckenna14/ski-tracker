@@ -7,12 +7,11 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="VT Ski Tracker">
     <title>Vermont Ski Tracker</title>
+    <meta name="theme-color" content="#1B5E20">
     <link rel="stylesheet" href="styles-mobile.css">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="802.jpg">
-    <link rel="manifest" href="manifest.json">
-      <link rel="apple-touch-icon" href="802.jpg">
-      <meta name="theme-color" content="#1B5E20">
+    <link rel="apple-touch-icon-precomposed" href="802.jpg">
 </head>
 <body>
     <div class="container">
@@ -189,5 +188,13 @@
     </div>
 
     <script src="script-mobile.js"></script>
+    <script>
+        // Register service worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js');
+            });
+        }
+    </script>
 </body>
 </html>
