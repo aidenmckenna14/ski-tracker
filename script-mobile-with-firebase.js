@@ -122,6 +122,11 @@ form.addEventListener('submit', (e) => {
         notes: document.getElementById('notes').value
     };
     
+    // Initialize array if it doesn't exist
+    if (!allSkiDays[currentUser]) {
+        allSkiDays[currentUser] = [];
+    }
+    
     allSkiDays[currentUser].push(newSkiDay);
     allSkiDays[currentUser].sort((a, b) => new Date(b.date) - new Date(a.date));
     
