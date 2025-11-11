@@ -845,6 +845,52 @@ async function checkWeatherAlerts() {
 }
 
 function displayWeatherAlerts(data = {}) {
+    console.log('Display weather alerts called');
+    
+    // If no data provided, reload settings and check for fresh data
+    if (!data || (!data.alerts && !data.forecasts)) {
+        console.log('No data provided, reloading settings and checking weather...');
+        
+        // Reload settings from localStorage
+        const settings = JSON.parse(localStorage.getItem('weatherSettings')) || {};
+        console.log('Reloaded settings:', settings);
+        
+        // Update form fields
+        const apiKeyEl = document.getElementById('weather-api-key');
+        if (apiKeyEl && settings.apiKey) {
+            apiKeyEl.value = settings.apiKey;
+            console.log('Restored API key to field');
+        }
+        
+        if (document.getElementById('enable-alerts')) {
+            document.getElementById('enable-alerts').checked = settings.enableAlerts !== false;
+        }
+        
+        if (document.getElementById('snow-threshold')) {
+            document.getElementById('snow-threshold').value = settings.snowThreshold || 6;
+        }
+        
+        // Update checkboxes
+        if (settings.selectedResorts) {
+            document.querySelectorAll('#resort-checkboxes input[type="checkbox"]').forEach(cb => {
+                cb.checked = settings.selectedResorts.includes(cb.value);
+            });
+        }
+        
+        // Trigger weather check if we have an API key
+        if (settings.apiKey && settings.enableAlerts) {
+            console.log('Triggering weather check...');
+            checkWeatherAlerts();
+            return;
+        } else {
+            console.log('No API key or alerts disabled, showing placeholder');
+            document.getElementById('alerts-list').innerHTML = '<p>Enter your API key and enable alerts to see weather forecasts</p>';
+            document.getElementById('weekend-forecast').innerHTML = '<p>Configure weather settings to see weekend forecasts</p>';
+            return;
+        }
+    }
+    
+    // Display provided data
     const { alerts = [], forecasts = [] } = data;
     
     // Display alerts
@@ -854,8 +900,8 @@ function displayWeatherAlerts(data = {}) {
                 <span class="alert-resort">${alert.resort}</span>
                 <span class="alert-type">POWDER ALERT!</span>
             </div>
-            <p>${alert.snow}" expected in next 48 hours</p>
-            <p>Current: ${alert.temp.toFixed(0)}°F, ${alert.conditions}</p>
+            <p>${alert.amount}" expected in next 48 hours</p>
+            <p>${alert.message}</p>
         </div>
     `).join('') : '<p>No powder alerts at this time.</p>';
     
