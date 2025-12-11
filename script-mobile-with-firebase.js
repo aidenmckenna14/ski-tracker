@@ -2,6 +2,7 @@
 let currentUser = 'aiden';
 let allSkiDays = JSON.parse(localStorage.getItem('allSkiDays')) || {
     aiden: [],
+    chris: [],
     jack: [],
     matt: [],
     mike: [],
@@ -65,7 +66,7 @@ window.loadWeatherTab = loadWeatherTab;
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     // Ensure all users have arrays
-    ['aiden', 'jack', 'matt', 'mike', 'reece'].forEach(user => {
+    ['aiden', 'chris', 'jack', 'matt', 'mike', 'reece'].forEach(user => {
         if (!allSkiDays[user]) {
             allSkiDays[user] = [];
         }
@@ -135,7 +136,7 @@ function saveToFirebase() {
     
     try {
         // Ensure all users exist before saving
-        ['aiden', 'jack', 'matt', 'mike', 'reece'].forEach(user => {
+        ['aiden', 'chris', 'jack', 'matt', 'mike', 'reece'].forEach(user => {
             if (!allSkiDays[user]) {
                 allSkiDays[user] = [];
             }
@@ -374,7 +375,7 @@ function showLeaderboard() {
     const content = document.getElementById('stats-content');
     const userStats = [];
     
-    ['aiden', 'jack', 'matt', 'mike', 'reece'].forEach(user => {
+    ['aiden', 'chris', 'jack', 'matt', 'mike', 'reece'].forEach(user => {
         const days = allSkiDays[user] || [];
         const totalSnow = days.reduce((sum, day) => sum + day.snowfall, 0);
         const powderDays = days.filter(day => day.conditions === 'Powder').length;
@@ -498,6 +499,7 @@ function showCompareSkiers() {
                 <select id="skier1" onchange="compareSkiers()">
                     <option value="">Select skier 1...</option>
                     <option value="aiden">Aiden</option>
+                    <option value="chris">Chris</option>
                     <option value="jack">Jack</option>
                     <option value="matt">Matt</option>
                     <option value="mike">Mike</option>
@@ -507,6 +509,7 @@ function showCompareSkiers() {
                 <select id="skier2" onchange="compareSkiers()">
                     <option value="">Select skier 2...</option>
                     <option value="aiden">Aiden</option>
+                    <option value="chris">Chris</option>
                     <option value="jack">Jack</option>
                     <option value="matt">Matt</option>
                     <option value="mike">Mike</option>
@@ -707,7 +710,7 @@ window.updatePassROI = function() {
     localStorage.setItem('passPrice', passPrice);
     
     // Calculate for all users
-    const userStats = ['aiden', 'jack', 'matt', 'mike', 'reece'].map(user => {
+    const userStats = ['aiden', 'chris', 'jack', 'matt', 'mike', 'reece'].map(user => {
         const days = allSkiDays[user] || [];
         const boltonDays = days.filter(d => d.resort.toLowerCase().includes('bolton')).length;
         const costPerDay = boltonDays > 0 ? (passPrice / boltonDays).toFixed(2) : 'N/A';
