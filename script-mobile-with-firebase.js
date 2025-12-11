@@ -658,12 +658,23 @@ window.addGoal = function() {
     loadGoalsAndBadges();
 }
 
+window.deleteGoal = function(index) {
+    if (!userGoals[currentUser] || !userGoals[currentUser][index]) return;
+    
+    const goalType = userGoals[currentUser][index].type;
+    if (confirm(`Are you sure you want to delete this ${goalType} goal?`)) {
+        userGoals[currentUser].splice(index, 1);
+        localStorage.setItem('skiGoals', JSON.stringify(userGoals));
+        loadGoalsAndBadges();
+    }
+}
+
 window.loadGoalsAndBadges = function() {
     // Load goals
     const goals = userGoals[currentUser] || [];
     const currentDays = getCurrentUserDays();
     
-    const goalsHTML = goals.map(goal => {
+    const goalsHTML = goals.map((goal, index) => {
         let current = 0;
         switch(goal.type) {
             case 'days': current = currentDays.length; break;
@@ -677,7 +688,10 @@ window.loadGoalsAndBadges = function() {
         
         return `
             <div class="goal-card ${complete ? 'complete' : ''}">
-                <h4>${goal.type.charAt(0).toUpperCase() + goal.type.slice(1)} Goal</h4>
+                <div class="goal-header">
+                    <h4>${goal.type.charAt(0).toUpperCase() + goal.type.slice(1)} Goal</h4>
+                    <button class="delete-goal-btn" onclick="deleteGoal(${index})" title="Delete Goal">×</button>
+                </div>
                 <div class="goal-progress">
                     <div class="progress-bar" style="width: ${progress}%"></div>
                 </div>
