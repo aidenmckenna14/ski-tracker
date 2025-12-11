@@ -4,7 +4,15 @@
       ".read": true,
       ".write": true
     },
+    "familySkiDays": {
+      ".read": true,
+      ".write": true
+    },
     "weatherSettings": {
+      ".read": true,
+      ".write": true
+    },
+    "familyWeatherSettings": {
       ".read": true,
       ".write": true
     }
