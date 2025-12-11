@@ -410,7 +410,7 @@ function showLeaderboard() {
     
     content.innerHTML = `
         <div class="leaderboard">
-            <h3>Season Leaders</h3>
+            <h3>228 Family Season Leaders</h3>
             ${userStats.map((user, index) => `
                 <div class="leader-card">
                     <div class="leader-rank">${index + 1}</div>
@@ -998,8 +998,8 @@ function processWeatherData(resort, data, alerts, forecasts) {
     
     console.log(`Processing weather data for ${resort.name}...`);
     
-    // Check next 48 hours for snow
-    for (let i = 0; i < Math.min(16, data.list.length); i++) { // 16 * 3 hours = 48 hours
+    // Check next 24 hours for snow
+    for (let i = 0; i < Math.min(8, data.list.length); i++) { // 8 * 3 hours = 24 hours
         const forecast = data.list[i];
         const time = new Date(forecast.dt * 1000).toLocaleString();
         const weather = forecast.weather[0].main;
@@ -1019,13 +1019,18 @@ function processWeatherData(resort, data, alerts, forecasts) {
                 console.log(`    ❄️ API Snow: ${forecast.snow['3h']}mm (${periodSnow.toFixed(1)}")`);
             }
         } else if (weather === 'Snow' || description.toLowerCase().includes('snow')) {
-            // Snow mentioned but no accumulation data - estimate light snow
-            const snowKeywords = ['light snow', 'snow showers', 'snow'];
-            if (snowKeywords.some(keyword => description.toLowerCase().includes(keyword))) {
-                periodSnow = 0.5; // Estimate 0.5" for light snow periods
-                if (i < 3) {
-                    console.log(`    ❄️ Estimated Snow (${description}): ${periodSnow}"`);
-                }
+            // Snow mentioned but no accumulation data - estimate based on description
+            if (description.toLowerCase().includes('heavy snow')) {
+                periodSnow = 2.0; // Estimate 2" for heavy snow periods
+            } else if (description.toLowerCase().includes('moderate snow')) {
+                periodSnow = 1.0; // Estimate 1" for moderate snow periods
+            } else if (description.toLowerCase().includes('light snow') || description.toLowerCase().includes('snow showers')) {
+                periodSnow = 0.3; // Estimate 0.3" for light snow periods
+            } else {
+                periodSnow = 0.5; // Default snow estimate
+            }
+            if (i < 3) {
+                console.log(`    ❄️ Estimated Snow (${description}): ${periodSnow}"`);
             }
         }
         
@@ -1042,7 +1047,7 @@ function processWeatherData(resort, data, alerts, forecasts) {
             resort: resort.name,
             type: 'snow',
             amount: totalSnow.toFixed(1),
-            message: `${resort.name} expecting ${totalSnow.toFixed(1)}" of snow in next 48 hours!`
+            message: `${resort.name} expecting ${totalSnow.toFixed(1)}" of snow in next 24 hours!`
         });
         console.log(`🚨 POWDER ALERT: ${resort.name}!`);
     } else if (totalSnow > 0) {
