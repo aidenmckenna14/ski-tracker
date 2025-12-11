@@ -1,13 +1,30 @@
-// This is the WORKING simple version with Firebase added carefully
-let currentUser = 'aiden';
-let allSkiDays = JSON.parse(localStorage.getItem('allSkiDays')) || {
-    aiden: [],
-    chris: [],
-    jack: [],
-    matt: [],
-    mike: [],
-    reece: []
+// Vermont Ski Tracker - Family Version
+// Completely separate from friends version with different data storage
+let currentUser = 'aiden_f';
+let allSkiDays = JSON.parse(localStorage.getItem('familySkiDays')) || {
+    aiden_f: [],
+    drew: [],
+    mike_e: [],
+    mike_m: [],
+    addie: [],
+    mal: [],
+    adelle: [],
+    eli: [],
+    sophie: [],
+    leah: [],
+    sarah: []
 };
+
+// User display names
+const userDisplayNames = {
+    aiden_f: 'Aiden',
+    mike_e: 'Mike E',
+    mike_m: 'Mike M'
+};
+
+function getDisplayName(user) {
+    return userDisplayNames[user] || user.charAt(0).toUpperCase() + user.slice(1);
+}
 
 function getCurrentUserDays() {
     return allSkiDays[currentUser] || [];
@@ -66,7 +83,7 @@ window.loadWeatherTab = loadWeatherTab;
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     // Ensure all users have arrays
-    ['aiden', 'chris', 'jack', 'matt', 'mike', 'reece'].forEach(user => {
+    ['aiden_f', 'drew', 'mike_e', 'mike_m', 'addie', 'mal', 'adelle', 'eli', 'sophie', 'leah', 'sarah'].forEach(user => {
         if (!allSkiDays[user]) {
             allSkiDays[user] = [];
         }
@@ -91,19 +108,19 @@ function setupFirebaseSync() {
         const db = firebase.database();
         
         // Listen for changes from Firebase
-        db.ref('skiDays').on('value', (snapshot) => {
+        db.ref('familySkiDays').on('value', (snapshot) => {
             const data = snapshot.val();
             if (data) {
                 allSkiDays = data;
                 // Save to localStorage as backup
-                localStorage.setItem('allSkiDays', JSON.stringify(allSkiDays));
+                localStorage.setItem('familySkiDays', JSON.stringify(allSkiDays));
                 displaySkiDays();
                 updateStats();
             }
         });
         
         // Listen for weather settings changes from Firebase
-        db.ref('weatherSettings').on('value', (snapshot) => {
+        db.ref('familyWeatherSettings').on('value', (snapshot) => {
             const data = snapshot.val();
             if (data) {
                 weatherSettings = data;
@@ -136,13 +153,13 @@ function saveToFirebase() {
     
     try {
         // Ensure all users exist before saving
-        ['aiden', 'chris', 'jack', 'matt', 'mike', 'reece'].forEach(user => {
+        ['aiden_f', 'drew', 'mike_e', 'mike_m', 'addie', 'mal', 'adelle', 'eli', 'sophie', 'leah', 'sarah'].forEach(user => {
             if (!allSkiDays[user]) {
                 allSkiDays[user] = [];
             }
         });
         
-        firebase.database().ref('skiDays').set(allSkiDays);
+        firebase.database().ref('familySkiDays').set(allSkiDays);
     } catch (error) {
         console.error('Firebase save error:', error);
     }
@@ -180,7 +197,7 @@ form.addEventListener('submit', (e) => {
     allSkiDays[currentUser].sort((a, b) => new Date(b.date) - new Date(a.date));
     
     // Save to localStorage first (always works)
-    localStorage.setItem('allSkiDays', JSON.stringify(allSkiDays));
+    localStorage.setItem('familySkiDays', JSON.stringify(allSkiDays));
     
     // Then try Firebase
     saveToFirebase();
@@ -256,7 +273,7 @@ function createDayCard(day) {
 function deleteSkiDay(id) {
     if (confirm('Delete this ski day?')) {
         allSkiDays[currentUser] = allSkiDays[currentUser].filter(day => day.id !== id);
-        localStorage.setItem('allSkiDays', JSON.stringify(allSkiDays));
+        localStorage.setItem('familySkiDays', JSON.stringify(allSkiDays));
         saveToFirebase();
         displaySkiDays();
         updateStats();
@@ -316,7 +333,7 @@ editForm.addEventListener('submit', (e) => {
     };
     
     allSkiDays[currentUser].sort((a, b) => new Date(b.date) - new Date(a.date));
-    localStorage.setItem('allSkiDays', JSON.stringify(allSkiDays));
+    localStorage.setItem('familySkiDays', JSON.stringify(allSkiDays));
     saveToFirebase();
     
     displaySkiDays();
@@ -375,7 +392,7 @@ function showLeaderboard() {
     const content = document.getElementById('stats-content');
     const userStats = [];
     
-    ['aiden', 'chris', 'jack', 'matt', 'mike', 'reece'].forEach(user => {
+    ['aiden_f', 'drew', 'mike_e', 'mike_m', 'addie', 'mal', 'adelle', 'eli', 'sophie', 'leah', 'sarah'].forEach(user => {
         const days = allSkiDays[user] || [];
         const totalSnow = days.reduce((sum, day) => sum + day.snowfall, 0);
         const powderDays = days.filter(day => day.conditions === 'Powder').length;
@@ -498,7 +515,7 @@ function showCompareSkiers() {
             <div class="compare-selects">
                 <select id="skier1" onchange="compareSkiers()">
                     <option value="">Select skier 1...</option>
-                    <option value="aiden">Aiden</option>
+                    <option value="aiden_f">Aiden</option>
                     <option value="drew">Drew</option>
                     <option value="mike_e">Mike E</option>
                     <option value="mike_m">Mike M</option>
@@ -513,7 +530,7 @@ function showCompareSkiers() {
                 <span>vs</span>
                 <select id="skier2" onchange="compareSkiers()">
                     <option value="">Select skier 2...</option>
-                    <option value="aiden">Aiden</option>
+                    <option value="aiden_f">Aiden</option>
                     <option value="drew">Drew</option>
                     <option value="mike_e">Mike E</option>
                     <option value="mike_m">Mike M</option>
@@ -545,7 +562,7 @@ function compareSkiers() {
     const days2 = allSkiDays[skier2] || [];
     
     const stats1 = {
-        name: skier1.charAt(0).toUpperCase() + skier1.slice(1),
+        name: getDisplayName(skier1),
         totalDays: days1.length,
         totalSnow: days1.reduce((sum, day) => sum + day.snowfall, 0),
         powderDays: days1.filter(day => day.conditions === 'Powder').length,
@@ -553,7 +570,7 @@ function compareSkiers() {
     };
     
     const stats2 = {
-        name: skier2.charAt(0).toUpperCase() + skier2.slice(1),
+        name: getDisplayName(skier2),
         totalDays: days2.length,
         totalSnow: days2.reduce((sum, day) => sum + day.snowfall, 0),
         powderDays: days2.filter(day => day.conditions === 'Powder').length,
@@ -720,7 +737,7 @@ window.updatePassROI = function() {
     localStorage.setItem('passPrice', passPrice);
     
     // Calculate for all users
-    const userStats = ['aiden', 'drew', 'mike_e', 'mike_m', 'addie', 'mal', 'adelle', 'eli', 'sophie', 'leah', 'sarah'].map(user => {
+    const userStats = ['aiden_f', 'drew', 'mike_e', 'mike_m', 'addie', 'mal', 'adelle', 'eli', 'sophie', 'leah', 'sarah'].map(user => {
         const days = allSkiDays[user] || [];
         const boltonDays = days.filter(d => d.resort.toLowerCase().includes('bolton')).length;
         const costPerDay = boltonDays > 0 ? (passPrice / boltonDays).toFixed(2) : 'N/A';
@@ -804,7 +821,7 @@ const newEnglandResorts = [
     { name: 'Sugarloaf', lat: 45.0314, lon: -70.3128 }
 ];
 
-let weatherSettings = JSON.parse(localStorage.getItem('weatherSettings')) || {
+let weatherSettings = JSON.parse(localStorage.getItem('familyWeatherSettings')) || {
     apiKey: '',
     enableAlerts: true,
     snowThreshold: 6,
@@ -843,7 +860,7 @@ window.saveWeatherSettings = function() {
         // Save to Firebase so everyone can use the same API key
         if (typeof firebase !== 'undefined') {
             try {
-                firebase.database().ref('weatherSettings').set(weatherSettings);
+                firebase.database().ref('familyWeatherSettings').set(weatherSettings);
             } catch (error) {
                 console.error('Error saving weather settings to Firebase:', error);
             }
