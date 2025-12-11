@@ -1,0 +1,12 @@
+{
+  "rules": {
+    "skiDays": {
+      ".read": true,
+      ".write": true
+    },
+    "weatherSettings": {
+      ".read": true,
+      ".write": true
+    }
+  }
+}

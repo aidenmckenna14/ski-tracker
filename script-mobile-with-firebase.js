@@ -213,7 +213,10 @@ function createDayCard(day) {
     card.className = 'ski-day-card';
     card.style.position = 'relative';
     
-    const formattedDate = new Date(day.date).toLocaleDateString('en-US', {
+    // Parse date string as local date to avoid timezone issues
+    const [year, month, day_num] = day.date.split('-');
+    const localDate = new Date(year, month - 1, day_num);
+    const formattedDate = localDate.toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
         year: 'numeric'
@@ -464,14 +467,20 @@ function showExtremeStats() {
                 <div class="extreme-item">
                     <h4>Coldest Day</h4>
                     <p>${coldestDay.temperature}°F at ${coldestDay.resort}</p>
-                    <p class="extreme-user">${coldestDay.user.charAt(0).toUpperCase() + coldestDay.user.slice(1)} on ${new Date(coldestDay.date).toLocaleDateString()}</p>
+                    <p class="extreme-user">${coldestDay.user.charAt(0).toUpperCase() + coldestDay.user.slice(1)} on ${(() => {
+                        const [year, month, day] = coldestDay.date.split('-');
+                        return new Date(year, month - 1, day).toLocaleDateString();
+                    })()}</p>
                 </div>
             ` : ''}
             ${deepestPowder ? `
                 <div class="extreme-item">
                     <h4>Deepest Powder</h4>
                     <p>${deepestPowder.snowfall}" at ${deepestPowder.resort}</p>
-                    <p class="extreme-user">${deepestPowder.user.charAt(0).toUpperCase() + deepestPowder.user.slice(1)} on ${new Date(deepestPowder.date).toLocaleDateString()}</p>
+                    <p class="extreme-user">${deepestPowder.user.charAt(0).toUpperCase() + deepestPowder.user.slice(1)} on ${(() => {
+                        const [year, month, day] = deepestPowder.date.split('-');
+                        return new Date(year, month - 1, day).toLocaleDateString();
+                    })()}</p>
                 </div>
             ` : ''}
             ${!coldestDay && !deepestPowder ? '<p>No extreme days recorded yet</p>' : ''}
