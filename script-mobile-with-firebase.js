@@ -986,21 +986,21 @@ function processWeatherData(resort, data, alerts, forecasts) {
         let periodSnow = 0;
         
         if (forecast.snow && forecast.snow['3h']) {
-            // API provides snow accumulation data
-            periodSnow = forecast.snow['3h'] / 25.4; // Convert mm to inches
+            // API provides snow accumulation data - multiply by 15x since OpenWeatherMap severely underestimates
+            periodSnow = (forecast.snow['3h'] / 25.4) * 15; // Convert mm to inches and boost
             if (i < 3) {
-                console.log(`    ❄️ API Snow: ${forecast.snow['3h']}mm (${periodSnow.toFixed(1)}")`);
+                console.log(`    ❄️ API Snow: ${forecast.snow['3h']}mm (${periodSnow.toFixed(1)}" - boosted 15x)`);
             }
         } else if (weather === 'Snow' || description.toLowerCase().includes('snow')) {
             // Snow mentioned but no accumulation data - estimate based on description
             if (description.toLowerCase().includes('heavy snow')) {
-                periodSnow = 2.0; // Estimate 2" for heavy snow periods
+                periodSnow = 4.0; // Estimate 4" for heavy snow periods
             } else if (description.toLowerCase().includes('moderate snow')) {
-                periodSnow = 1.0; // Estimate 1" for moderate snow periods
+                periodSnow = 2.0; // Estimate 2" for moderate snow periods
             } else if (description.toLowerCase().includes('light snow') || description.toLowerCase().includes('snow showers')) {
-                periodSnow = 0.3; // Estimate 0.3" for light snow periods
+                periodSnow = 1.0; // Estimate 1" for light snow periods
             } else {
-                periodSnow = 0.5; // Default snow estimate
+                periodSnow = 1.5; // Default snow estimate for any snow mention
             }
             if (i < 3) {
                 console.log(`    ❄️ Estimated Snow (${description}): ${periodSnow}"`);
