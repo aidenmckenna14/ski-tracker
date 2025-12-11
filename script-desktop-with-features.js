@@ -2,6 +2,7 @@
 let currentUser = 'aiden';
 let allSkiDays = JSON.parse(localStorage.getItem('allSkiDays')) || {
     aiden: [],
+    chris: [],
     jack: [],
     matt: [],
     mike: [],
@@ -49,7 +50,7 @@ const badges = [
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     // Ensure all users have arrays
-    ['aiden', 'jack', 'matt', 'mike', 'reece'].forEach(user => {
+    ['aiden', 'chris', 'jack', 'matt', 'mike', 'reece'].forEach(user => {
         if (!allSkiDays[user]) {
             allSkiDays[user] = [];
         }
@@ -212,7 +213,10 @@ function createDayCard(day) {
     const card = document.createElement('div');
     card.className = 'ski-day-card';
     
-    const formattedDate = new Date(day.date).toLocaleDateString('en-US', {
+    // Parse date string as local date to avoid timezone issues
+    const [year, month, day_num] = day.date.split('-');
+    const localDate = new Date(year, month - 1, day_num);
+    const formattedDate = localDate.toLocaleDateString('en-US', {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
